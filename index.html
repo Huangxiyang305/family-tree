@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>黄氏家谱 · GitHub双部署版</title>
+    <title>黄氏家谱 · GitHub直传版</title>
     <!-- 引入 Cropper.js 用于头像裁剪 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
@@ -2965,46 +2965,37 @@
                     // 先尝试从本地存储加载
                     const localData = loadFromLocal();
                     
-                    // 尝试从 data.json 加载数据（支持 Netlify 和 GitHub Pages）
+                    // 关键修复：尝试从 data.json 加载数据
                     let serverData = null;
                     let loadError = null;
                     
-                    // 尝试多个可能的路径（兼容不同部署环境）
-                    const possiblePaths = [
-                        `data.json?t=${Date.now()}`,           // 同目录
-                        `./data.json?t=${Date.now()}`,         // 相对路径
-                        `/data.json?t=${Date.now()}`           // 根路径
-                    ];
-                    
-                    for (const path of possiblePaths) {
-                        try {
-                            console.log(`尝试加载: ${path}`);
-                            const response = await fetch(path);
-                            
-                            if (response.ok) {
-                                const remoteData = await response.json();
-                                
-                                // 兼容两种格式：直接是家谱数据，或者是包含 data 字段的备份文件
-                                if (remoteData && remoteData.data && remoteData.data.members) {
-                                    // 备份文件格式：{ version, timestamp, data, ... }
-                                    serverData = migrateAllDates(remoteData.data);
-                                    console.log('✅ 从 data.json 加载备份格式数据成功');
-                                    break;
-                                } else if (remoteData && remoteData.members) {
-                                    // 直接家谱数据格式
-                                    serverData = migrateAllDates(remoteData);
-                                    console.log('✅ 从 data.json 加载家谱格式数据成功');
-                                    break;
-                                }
+                    try {
+                        // 添加时间戳防止缓存
+                        const timestamp = new Date().getTime();
+                        const response = await fetch(`data.json?t=${timestamp}`);
+                        
+                        if (response.ok) {
+                            const remoteData = await response.json();
+                            // 兼容两种格式：直接是家谱数据，或者是包含 data 字段的备份文件
+                            if (remoteData && remoteData.data && remoteData.data.members) {
+                                // 备份文件格式：{ version, timestamp, data, ... }
+                                serverData = migrateAllDates(remoteData.data);
+                                console.log('✅ 从 data.json 加载备份格式数据成功');
+                            } else if (remoteData && remoteData.members) {
+                                // 直接家谱数据格式
+                                serverData = migrateAllDates(remoteData);
+                                console.log('✅ 从 data.json 加载家谱格式数据成功');
+                            } else {
+                                loadError = 'data.json 格式不正确，缺少 members 字段';
+                                console.warn(loadError, remoteData);
                             }
-                        } catch (e) {
-                            // 继续尝试下一个路径
-                            continue;
+                        } else {
+                            loadError = `无法加载 data.json，状态码：${response.status}`;
+                            console.warn(loadError);
                         }
-                    }
-                    
-                    if (!serverData) {
-                        console.log('⚠️ 所有路径都无法加载 data.json，使用本地数据');
+                    } catch (fetchError) {
+                        loadError = fetchError.message;
+                        console.warn('⚠️ 从 data.json 加载失败', fetchError);
                     }
                     
                     // 智能选择数据源：优先使用 data.json
@@ -3013,10 +3004,10 @@
                         showSaveToast('📢 已加载最新家谱数据', 'info');
                     } else if (localData) {
                         familyData = localData;
-                        showSaveToast('💾 使用本地缓存数据', 'info');
+                        showSaveToast('💾 使用本地缓存数据' + (loadError ? ' (网络数据不可用)' : ''), 'info');
                     } else {
                         familyData = getEmbeddedFamilyData();
-                        showSaveToast('📦 使用默认空数据', 'warning');
+                        showSaveToast('📦 使用默认空数据' + (loadError ? '：' + loadError : ''), 'warning');
                     }
                     
                     // 确保数据格式正确
