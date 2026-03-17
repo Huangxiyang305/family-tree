@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>黄氏家谱 · GitHub直传版</title>
+    <title>黄氏家谱 · 完整修复版</title>
     <!-- 引入 Cropper.js 用于头像裁剪 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
@@ -530,7 +530,7 @@
 
         <div class="tree-container" id="treeContainer"></div>
 
-        <!-- 编辑面板 + GitHub直传（已修复配偶和子女头像上传） -->
+        <!-- 编辑面板 + GitHub直传（完整版） -->
         <div class="edit-panel" id="editPanel" style="display: none;">
             <h3><span>✏️ 成员信息</span><span id="editingMemberName" style="color: #0369a1;"></span><span class="delete-warning" id="deleteWarning" style="display: none;">仅管理员可删除</span></h3>
             <div class="form-grid">
@@ -569,10 +569,10 @@
                 </div>
             </div>
 
-            <!-- GitHub 直传配置区域（修复版） -->
+            <!-- GitHub 直传配置区域（先裁剪后上传） -->
             <div class="avatar-upload-section">
                 <div class="avatar-upload-header">
-                    <h3 style="margin:0;">📸 GitHub 直传头像</h3>
+                    <h3 style="margin:0;">📸 GitHub 直传头像（先裁剪后上传）</h3>
                     <div class="btn-group">
                         <div class="upload-btn-wrapper">
                             <button class="btn" id="uploadPhotoBtn">选择照片（本地裁剪）</button>
@@ -626,12 +626,12 @@
                             <option value="child">子女（需要先选择具体子女）</option>
                         </select>
                         
-                        <!-- 配偶选择下拉框（默认隐藏） -->
+                        <!-- 配偶选择下拉框 -->
                         <select id="spouseSelect" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #bae6fd; border-radius: 6px; display: none;">
                             <option value="">请选择配偶</option>
                         </select>
                         
-                        <!-- 子女选择下拉框（默认隐藏） -->
+                        <!-- 子女选择下拉框 -->
                         <select id="childSelect" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #bae6fd; border-radius: 6px; display: none;">
                             <option value="">请选择子女</option>
                         </select>
@@ -655,7 +655,7 @@
                         3. 填写上方配置并保存<br>
                         4. 选择要上传的对象（当前成员/配偶/子女）<br>
                         5. 如果是配偶或子女，从下拉框中选择具体对象<br>
-                        6. 点击“选择图片并上传”<br>
+                        6. 点击“选择图片并上传” → 选择图片 → 裁剪 → 确认后自动上传<br>
                         7. 上传成功后自动生成链接，点击“设为头像”即可
                     </div>
                 </div>
@@ -719,7 +719,7 @@
 
         <div class="delete-confirm-modal" id="deleteConfirmModal"><div class="delete-confirm-container"><h3>⚠️ 确认删除</h3><p>您确定要删除成员 <strong id="deleteMemberName"></strong> 吗？</p><div class="warning-text">此操作不可逆，将同时删除该成员的所有配偶信息。</div><div class="delete-confirm-actions"><button class="btn" id="cancelDeleteBtn">取消</button><button class="btn danger" id="confirmDeleteBtn">确认删除</button></div></div></div>
 
-        <div class="cropper-modal" id="cropperModal"><div class="cropper-container"><div class="cropper-header"><h3>✂️ 裁剪头像</h3></div><div class="cropper-body"><div class="image-container"><img id="cropperImage" src=""></div></div><div class="cropper-footer"><button class="btn" id="cancelCropBtn">取消</button><button class="btn primary" id="confirmCropBtn">✓ 确认裁剪</button></div></div></div>
+        <div class="cropper-modal" id="cropperModal"><div class="cropper-container"><div class="cropper-header"><h3>✂️ 裁剪头像（上传前最后一步）</h3></div><div class="cropper-body"><div class="image-container"><img id="cropperImage" src=""></div></div><div class="cropper-footer"><button class="btn" id="cancelCropBtn">取消</button><button class="btn primary" id="confirmCropBtn">✓ 确认裁剪并上传</button></div></div></div>
 
         <div id="saveToast" class="save-toast" style="display: none;">✅ 数据已保存</div>
     </div>
@@ -1006,10 +1006,54 @@
 
             // ========== 默认数据 ==========
             function getEmbeddedFamilyData() {
+                // 提供一个默认示例数据，方便测试登录
                 return {
                     "id": "root",
                     "name": "黄氏家族",
-                    "members": [],
+                    "members": [
+                        {
+                            "id": "m1",
+                            "name": "黄国珠",
+                            "gender": "male",
+                            "rank": "1",
+                            "birth": "1950",
+                            "living": "alive",
+                            "bio": "族长",
+                            "avatar": "",
+                            "spouses": [
+                                { "name": "李氏", "gender": "female", "birth": "1952", "living": "alive", "sonInLaw": false }
+                            ],
+                            "children": [
+                                {
+                                    "id": "m2",
+                                    "name": "黄秀莲",
+                                    "gender": "female",
+                                    "rank": "1",
+                                    "birth": "1975",
+                                    "living": "alive",
+                                    "bio": "",
+                                    "avatar": "",
+                                    "spouses": [
+                                        { "name": "黄武芳", "gender": "male", "birth": "1973", "living": "alive", "sonInLaw": true }
+                                    ],
+                                    "children": [
+                                        {
+                                            "id": "m3",
+                                            "name": "黄小强",
+                                            "gender": "male",
+                                            "rank": "1",
+                                            "birth": "2000",
+                                            "living": "alive",
+                                            "bio": "",
+                                            "avatar": "",
+                                            "spouses": [],
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
                     "timestamp": new Date().toISOString()
                 };
             }
@@ -1029,12 +1073,15 @@
             let globalMode = 'view';
             let currentSearchMode = 'member';
             
-            // 新增：当前正在上传的目标（用于配偶/子女头像）
+            // 当前正在上传的目标（用于配偶/子女头像）
             let currentUploadTarget = {
                 type: 'member',
                 spouseIndex: null,
                 childIndex: null
             };
+
+            // 临时存储裁剪前的图片文件，用于上传
+            let pendingUploadFile = null;
 
             // ---------- 本地存储 ----------
             async function saveToLocal(showToast = false) {
@@ -1165,18 +1212,43 @@
                 return null;
             }
 
-            function getAllMemberNames(node = familyData) {
-                let names = [];
-                if (!node?.members) return names;
+            // ========== 获取所有成员（包括所有血亲和配偶，用于登录） ==========
+            function getAllMembersForLogin(node = familyData, members = []) {
+                if (!node?.members) return members;
+                
                 for (const m of node.members) {
-                    names.push(m.name);
-                    if (m.children?.length) names = names.concat(getAllMemberNames({ members: m.children }));
+                    // 添加血亲成员
+                    members.push({
+                        id: m.id,
+                        name: m.name,
+                        gender: m.gender,
+                        type: 'blood'
+                    });
+                    
+                    // 添加配偶（无论是否上门女婿）
+                    if (m.spouses && Array.isArray(m.spouses)) {
+                        m.spouses.forEach((spouse, index) => {
+                            members.push({
+                                id: spouse.id || `${m.id}_spouse_${index}`,
+                                name: spouse.name,
+                                gender: spouse.gender,
+                                type: 'spouse',
+                                parentId: m.id
+                            });
+                        });
+                    }
+                    
+                    // 递归处理子女
+                    if (m.children && m.children.length > 0) {
+                        getAllMembersForLogin({ members: m.children }, members);
+                    }
                 }
-                return names;
+                
+                return members;
             }
 
-            // ---------- 获取所有成员（包括配偶和子女，用于登录和搜索）----------
-            function getAllMembers(node = familyData, members = [], currentGen = 1, isDirectLine = true) {
+            // ========== 获取血缘成员（用于同代统计） ==========
+            function getAllBloodlineMembers(node = familyData, members = [], currentGen = 1, isDirectLine = true) {
                 if (!node?.members) return members;
                 
                 for (const m of node.members) {
@@ -1190,108 +1262,55 @@
                         type: 'blood'
                     });
                     
-                    if (m.spouses && Array.isArray(m.spouses)) {
+                    // 上门女婿计入当前代
+                    if (m.gender === 'female' && m.spouses && Array.isArray(m.spouses)) {
                         m.spouses.forEach((spouse, index) => {
-                            members.push({
-                                id: spouse.id || `${m.id}_spouse_${index}`,
-                                name: spouse.name,
-                                gender: spouse.gender,
-                                generation: currentGen,
-                                living: spouse.living || 'alive',
-                                isDirect: false,
-                                type: 'spouse',
-                                parentId: m.id,
-                                spouseIndex: index
-                            });
-                        });
-                    }
-                    
-                    if (m.children && Array.isArray(m.children) && m.children.length > 0) {
-                        getAllMembers({ members: m.children }, members, currentGen + 1, false);
-                    }
-                }
-                
-                return members;
-            }
-
-            // ---------- 获取所有直系成员（用于统计）----------
-            function getAllDirectMembers(node = familyData, members = [], currentGen = 1) {
-                if (!node?.members) return members;
-                
-                for (const m of node.members) {
-                    members.push({
-                        id: m.id,
-                        name: m.name,
-                        gender: m.gender,
-                        generation: currentGen,
-                        living: m.living,
-                        isDirect: true,
-                        isSonInLaw: false
-                    });
-                    
-                    if (m.spouses && Array.isArray(m.spouses)) {
-                        m.spouses.forEach(spouse => {
                             if (spouse.sonInLaw) {
                                 members.push({
-                                    id: spouse.id || `${m.id}_spouse_${spouse.name}`,
+                                    id: spouse.id || `${m.id}_spouse_${index}`,
                                     name: spouse.name,
                                     gender: spouse.gender,
                                     generation: currentGen,
                                     living: spouse.living || 'alive',
                                     isDirect: true,
-                                    isSonInLaw: true,
+                                    type: 'sonInLaw',
                                     parentId: m.id
                                 });
                             }
                         });
                     }
                     
-                    if (m.children && Array.isArray(m.children) && m.children.length > 0) {
-                        let shouldIncludeChildren = false;
-                        
-                        if (m.gender === 'male') {
-                            shouldIncludeChildren = true;
-                        }
-                        else if (m.gender === 'female') {
-                            if (m.spouses && Array.isArray(m.spouses)) {
-                                const hasSonInLaw = m.spouses.some(s => s.sonInLaw === true);
-                                if (hasSonInLaw) {
-                                    shouldIncludeChildren = true;
-                                }
+                    // 决定是否继续统计下一代
+                    let shouldContinue = false;
+                    if (m.gender === 'male') {
+                        shouldContinue = true;
+                    } else if (m.gender === 'female') {
+                        if (m.spouses && Array.isArray(m.spouses)) {
+                            const hasSonInLaw = m.spouses.some(s => s.sonInLaw === true);
+                            if (hasSonInLaw) {
+                                shouldContinue = true;
                             }
                         }
-                        
-                        if (shouldIncludeChildren) {
-                            getAllDirectMembers({ members: m.children }, members, currentGen + 1);
-                        }
+                    }
+                    
+                    if (shouldContinue && m.children && Array.isArray(m.children) && m.children.length > 0) {
+                        getAllBloodlineMembers({ members: m.children }, members, currentGen + 1, false);
                     }
                 }
                 
                 return members;
             }
 
-            // ---------- 获取直系族谱统计----------
-            function getDirectLineageStats() {
-                const allDirect = getAllDirectMembers();
-                const total = allDirect.length;
-                const living = allDirect.filter(m => m.living === 'alive').length;
-                const deceased = allDirect.filter(m => m.living === 'deceased').length;
-                
-                return { total, living, deceased };
-            }
-
-            // ---------- 获取指定世代的成员----------
-            function getMembersByGeneration(gen) {
-                const allMembers = getAllMembers();
+            function getBloodlineMembersByGeneration(gen) {
+                const allMembers = getAllBloodlineMembers();
                 return allMembers.filter(m => m.generation === parseInt(gen));
             }
 
-            // ---------- 更新世代选择器 ----------
             function updateGenerationSelector() {
                 const select = document.getElementById('generationSelect');
                 if (!select) return;
                 
-                const maxGen = getMaxGeneration();
+                const maxGen = getMaxBloodlineGeneration();
                 
                 let options = '<option value="">选择世代</option>';
                 for (let i = 1; i <= maxGen; i++) {
@@ -1300,7 +1319,29 @@
                 select.innerHTML = options;
             }
 
-            // ---------- 显示同代成员----------
+            function getMaxBloodlineGeneration(node = familyData, cur = 1) {
+                let max = cur;
+                if (!node || !node.members) return max;
+                for (const m of node.members) {
+                    max = Math.max(max, cur);
+                    let shouldContinue = false;
+                    if (m.gender === 'male') {
+                        shouldContinue = true;
+                    } else if (m.gender === 'female') {
+                        if (m.spouses && Array.isArray(m.spouses)) {
+                            const hasSonInLaw = m.spouses.some(s => s.sonInLaw === true);
+                            if (hasSonInLaw) {
+                                shouldContinue = true;
+                            }
+                        }
+                    }
+                    if (shouldContinue && m.children && m.children.length) {
+                        max = Math.max(max, getMaxBloodlineGeneration({ members: m.children }, cur + 1));
+                    }
+                }
+                return max;
+            }
+
             function showGenerationMembers(gen) {
                 const resultsDiv = document.getElementById('generationResults');
                 const genSpan = document.getElementById('currentGeneration');
@@ -1309,7 +1350,7 @@
                 
                 if (!resultsDiv || !genSpan || !countSpan || !listDiv) return;
                 
-                const members = getMembersByGeneration(parseInt(gen));
+                const members = getBloodlineMembersByGeneration(parseInt(gen));
                 
                 genSpan.textContent = gen;
                 countSpan.textContent = members.length;
@@ -1339,23 +1380,23 @@
                                 👥 共 ${members.length} 人
                             </span>
                             <span class="stats" style="background: #fee2e2; color: #b91c1c;">
-                                ♂ 男孩 ${maleCount} 人
+                                ♂ 男丁 ${maleCount} 人
                                 ${maleDeceased > 0 ? `<span style="margin-left: 5px; font-size: 0.8rem; background: #d1d5db; color: #374151; padding: 2px 6px; border-radius: 12px;">🍂 已故 ${maleDeceased}</span>` : ''}
                             </span>
                             <span class="stats" style="background: #dcfce7; color: #166534;">
-                                ♀ 女孩 ${femaleCount} 人
+                                ♀ 女丁 ${femaleCount} 人
                                 ${femaleDeceased > 0 ? `<span style="margin-left: 5px; font-size: 0.8rem; background: #d1d5db; color: #374151; padding: 2px 6px; border-radius: 12px;">🍂 已故 ${femaleDeceased}</span>` : ''}
                             </span>
                         </div>
                     `;
                     
                     if (sortedMaleMembers.length > 0) {
-                        html += '<div style="margin-bottom: 15px;"><h4 style="color: #b91c1c; margin-bottom: 8px;">♂ 男孩</h4><div class="generation-members">';
+                        html += '<div style="margin-bottom: 15px;"><h4 style="color: #b91c1c; margin-bottom: 8px;">♂ 男丁</h4><div class="generation-members">';
                         sortedMaleMembers.forEach(m => {
                             const genderIcon = '♂';
                             const genderClass = 'male';
                             const status = m.living === 'deceased' ? ' (故)' : '';
-                            const typeTag = m.type === 'spouse' ? '<span class="son-in-law-badge" style="background:#6b7280;">配偶</span>' : '';
+                            const typeTag = m.type === 'sonInLaw' ? '<span class="son-in-law-badge">上门女婿</span>' : '';
                             const deceasedClass = m.living === 'deceased' ? 'deceased' : '';
                             
                             html += `<div class="generation-member-tag ${deceasedClass}" onclick="window.scrollToMember('${m.id}')">
@@ -1368,12 +1409,12 @@
                     }
                     
                     if (sortedFemaleMembers.length > 0) {
-                        html += '<div><h4 style="color: #166534; margin-bottom: 8px;">♀ 女孩</h4><div class="generation-members">';
+                        html += '<div><h4 style="color: #166534; margin-bottom: 8px;">♀ 女丁</h4><div class="generation-members">';
                         sortedFemaleMembers.forEach(m => {
                             const genderIcon = '♀';
                             const genderClass = 'female';
                             const status = m.living === 'deceased' ? ' (故)' : '';
-                            const typeTag = m.type === 'spouse' ? '<span class="son-in-law-badge" style="background:#6b7280;">配偶</span>' : '';
+                            const typeTag = '';
                             const deceasedClass = m.living === 'deceased' ? 'deceased' : '';
                             
                             html += `<div class="generation-member-tag ${deceasedClass}" onclick="window.scrollToMember('${m.id}')">
@@ -1393,7 +1434,6 @@
                 }
             }
 
-            // ---------- 滚动到指定成员 ----------
             window.scrollToMember = function(id) {
                 expandToMember(id);
                 renderTree();
@@ -1404,7 +1444,7 @@
                         el.classList.add('selected');
                         setTimeout(() => el.classList.remove('selected'), 2000);
                     } else {
-                        const allMembers = getAllMembers();
+                        const allMembers = getAllMembersForLogin();
                         const spouse = allMembers.find(m => m.id === id && m.type === 'spouse');
                         if (spouse && spouse.parentId) {
                             expandToMember(spouse.parentId);
@@ -1425,14 +1465,13 @@
                 }, 100);
             };
 
-            // ---------- 搜索成员 ----------
             function searchMember(name) {
                 if (!name.trim()) {
                     clearSearch();
                     return;
                 }
                 
-                const allMembers = getAllMembers();
+                const allMembers = getAllMembersForLogin();
                 const matches = allMembers.filter(m => m.name === name);
                 
                 if (matches.length > 0) {
@@ -1474,7 +1513,6 @@
                 }
             }
 
-            // ---------- 清除搜索 ----------
             function clearSearch() {
                 document.getElementById('memberSearchInput').value = '';
                 document.getElementById('generationSelect').value = '';
@@ -1550,7 +1588,7 @@
                 if (!name) { err.textContent = '请输入姓名'; return; }
                 if (ADMIN_USERS[name]) { err.textContent = '请使用管理员登录入口'; return; }
                 
-                const allMembers = getAllMembers();
+                const allMembers = getAllMembersForLogin();
                 const matches = allMembers.filter(m => m.name === name);
                 
                 if (matches.length > 0) {
@@ -1592,18 +1630,6 @@
                 } else {
                     err.textContent = '姓名不在家谱成员中';
                 }
-            }
-
-            function findMemberIdByName(name, node = familyData) {
-                if (!node?.members) return null;
-                for (const m of node.members) {
-                    if (m.name === name) return m.id;
-                    if (m.children?.length) {
-                        const f = findMemberIdByName(name, { members: m.children });
-                        if (f) return f;
-                    }
-                }
-                return null;
             }
 
             function adminLogin() {
@@ -1685,7 +1711,7 @@
                 try {
                     const { name, role } = JSON.parse(s);
                     if (role === 'member') {
-                        const allMembers = getAllMembers();
+                        const allMembers = getAllMembersForLogin();
                         const matches = allMembers.filter(m => m.name === name);
                         if (matches.length > 0) {
                             currentLoggedInUser = name; 
@@ -1723,15 +1749,9 @@
                 } catch (e) { console.error('自动登录失败', e); }
             }
 
-            // ---------- 世代 ----------
+            // ---------- 世代统计 ----------
             function getMaxGeneration(node = familyData, cur = 1) {
-                let max = cur;
-                if (!node || !node.members) return max;
-                for (const m of node.members) {
-                    max = Math.max(max, cur);
-                    if (m.children && m.children.length) max = Math.max(max, getMaxGeneration({ members: m.children }, cur + 1));
-                }
-                return max;
+                return getMaxBloodlineGeneration(node, cur);
             }
 
             function updateGenerationStats() {
@@ -1763,7 +1783,18 @@
                             });
                         }
                         
-                        if (m.children && Array.isArray(m.children) && m.children.length > 0) {
+                        let shouldContinue = false;
+                        if (m.gender === 'male') {
+                            shouldContinue = true;
+                        } else if (m.gender === 'female') {
+                            if (m.spouses && Array.isArray(m.spouses)) {
+                                const hasSonInLaw = m.spouses.some(s => s.sonInLaw === true);
+                                if (hasSonInLaw) {
+                                    shouldContinue = true;
+                                }
+                            }
+                        }
+                        if (shouldContinue && m.children && Array.isArray(m.children) && m.children.length > 0) {
                             count({ members: m.children });
                         }
                     }
@@ -1771,6 +1802,19 @@
                 
                 count(data);
                 return { memberCount: mc, spouseCount: sc, sonInLawCount: sic };
+            }
+
+            function getAllDirectMembers(node = familyData, members = [], currentGen = 1) {
+                return getAllBloodlineMembers(node, members, currentGen, true);
+            }
+
+            function getDirectLineageStats() {
+                const allDirect = getAllBloodlineMembers();
+                const total = allDirect.length;
+                const living = allDirect.filter(m => m.living === 'alive').length;
+                const deceased = allDirect.filter(m => m.living === 'deceased').length;
+                
+                return { total, living, deceased };
             }
 
             function updateStatistics() {
@@ -1930,8 +1974,8 @@
                 r.readAsText(file);
             }
 
-            // ---------- 头像裁剪 ----------
-            function initCropper(url, type, id, si, ci) {
+            // ========== 头像裁剪 + GitHub 上传整合 ==========
+            function initCropperForUpload(url, file) {
                 if (!canEdit()) { alert('当前为浏览模式，无法上传头像'); return; }
                 const modal = document.getElementById('cropperModal');
                 const img = document.getElementById('cropperImage');
@@ -1954,1093 +1998,13 @@
                         responsive: true 
                     });
                 }, 100);
-                window.currentCropTarget = { type, id, spouseIndex: si, childIndex: ci };
+                pendingUploadFile = file;
             }
 
-            function handleFileSelect(e) {
-                if (!canEdit()) { alert('当前为浏览模式，无法上传头像'); return; }
-                const f = e.target.files[0]; 
-                if (!f) return;
-                const r = new FileReader();
-                r.onload = (e) => initCropper(e.target.result, 'member', currentEditingId, null, null);
-                r.readAsDataURL(f); 
-                e.target.value = '';
-            }
-
-            function handleSpouseFileSelect(e, mid, si) {
-                if (!canEdit()) return;
-                const f = e.target.files[0]; 
-                if (!f) return;
-                const r = new FileReader();
-                r.onload = (e) => initCropper(e.target.result, 'spouse', mid, si, null);
-                r.readAsDataURL(f); 
-                e.target.value = '';
-            }
-
-            function handleChildFileSelect(e, mid, ci) {
-                if (!canEdit()) return;
-                const f = e.target.files[0]; 
-                if (!f) return;
-                const r = new FileReader();
-                r.onload = (e) => initCropper(e.target.result, 'child', mid, null, ci);
-                r.readAsDataURL(f); 
-                e.target.value = '';
-            }
-
-            async function confirmCrop() {
-                if (!cropper || !window.currentCropTarget) { 
-                    document.getElementById('cropperModal').style.display = 'none'; 
-                    return; 
-                }
-                try {
-                    const canvas = cropper.getCroppedCanvas({ 
-                        width: 200,
-                        height: 200, 
-                        imageSmoothingEnabled: true, 
-                        imageSmoothingQuality: 'high' 
-                    });
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    const t = window.currentCropTarget;
-                    if (t.type === 'member') {
-                        const m = findMemberById(t.id);
-                        if (m) { 
-                            m.avatar = dataUrl; 
-                            updateAvatarDisplay(dataUrl); 
-                            await saveToLocal(); 
-                            modificationLog.addLog('更新头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的头像`); 
-                        }
-                    } else if (t.type === 'spouse') {
-                        const m = findMemberById(t.id);
-                        if (m && m.spouses && m.spouses[t.spouseIndex]) {
-                            m.spouses[t.spouseIndex].avatar = dataUrl;
-                            renderSpouseEditFields(m); 
-                            await saveToLocal();
-                            modificationLog.addLog('更新配偶头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的配偶的头像`);
-                        }
-                    } else if (t.type === 'child') {
-                        const m = findMemberById(t.id);
-                        if (m && m.children && m.children[t.childIndex]) {
-                            m.children[t.childIndex].avatar = dataUrl;
-                            renderChildrenEditFields(m); 
-                            await saveToLocal();
-                            modificationLog.addLog('更新子女头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的子女的头像`);
-                        }
-                    }
-                    document.getElementById('cropperModal').style.display = 'none';
-                    if (cropper) { cropper.destroy(); cropper = null; }
-                    renderTree();
-                } catch (e) { console.error(e); alert('裁剪失败，请重试'); }
-            }
-
-            function updateAvatarDisplay(url) {
-                const p = document.getElementById('avatarPreview');
-                const s = document.getElementById('avatarStatus');
-                if (!p || !s) return;
-                if (url) { 
-                    p.src = url; 
-                    s.textContent = '已上传头像'; 
-                } else { 
-                    p.src = ''; 
-                    s.textContent = '暂无头像'; 
-                }
-            }
-
-            // ---------- 渲染编辑字段 ----------
-            function escapeHtml(u) { 
-                return u.replace(/[&<>"]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[m]); 
-            }
-
-            function renderChildrenEditFields(member) {
-                const c = document.getElementById('childrenEditList');
-                if (!c) return;
-                if (!member.children || !member.children.length) { 
-                    c.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">暂无子女，点击上方"添加子女"按钮添加</div>'; 
-                    return; 
-                }
-                let html = '';
-                member.children.forEach((child, i) => {
-                    const avatar = child.avatar ? 
-                        `<img class="child-edit-avatar" src="${child.avatar}" onclick="${canEdit()?`window.selectChildAvatar('${member.id}',${i})`:'return false'}">` : 
-                        `<div class="child-edit-avatar-placeholder" onclick="${canEdit()?`window.selectChildAvatar('${member.id}',${i})`:'return false'}">${canEdit()?'点击<br>上传':'无头像'}</div>`;
-                    
-                    const rankOpts = `<select class="child-rank" ${!canEdit()?'disabled':''}>` +
-                        [0,1,2,3,4,5,6,7,8,9,10,11,12].map(v => 
-                            `<option value="${v}" ${child.rank==v?'selected':''}>${v==0?'未设置':getRankText(v)}</option>`
-                        ).join('') + '</select>';
-                    
-                    const originalHint = child.birthOriginal ? 
-                        `<small style="color:#f59e0b; display:block; font-size:0.6rem;">原: ${child.birthOriginal}</small>` : '';
-                    
-                    const living = `<div class="child-living-toggle">
-                        <label><input type="radio" name="cl_${i}" value="alive" ${child.living!=='deceased'?'checked':''} ${!canEdit()?'disabled':''}>在世</label>
-                        <label><input type="radio" name="cl_${i}" value="deceased" ${child.living==='deceased'?'checked':''} ${!canEdit()?'disabled':''}>已故</label>
-                    </div>`;
-                    
-                    const remove = canRemoveChild() ? 
-                        `<button class="action-btn remove-child" onclick="window.removeChildFromEdit('${member.id}',${i})">✕ 移除</button>` : '';
-                    
-                    html += `<div class="child-edit-item">
-                        ${avatar}
-                        <input type="text" class="child-name" value="${escapeHtml(child.name||'')}" placeholder="子女姓名" ${!canEdit()?'disabled':''}>
-                        <select class="child-gender" ${!canEdit()?'disabled':''}>
-                            <option value="male" ${child.gender==='male'?'selected':''}>男 ♂</option>
-                            <option value="female" ${child.gender==='female'?'selected':''}>女 ♀</option>
-                        </select>
-                        <div style="display:flex; flex-direction:column;">
-                            <input type="date" class="child-birth" value="${child.birth||''}" placeholder="出生日期" ${!canEdit()?'disabled':''}>
-                            ${originalHint}
-                        </div>
-                        ${rankOpts}
-                        ${living}
-                        <input type="text" class="child-bio-input" value="${escapeHtml(child.bio||'')}" placeholder="子女简介..." ${!canEdit()?'disabled':''}>
-                        ${remove}
-                    </div>`;
-                });
-                c.innerHTML = html;
-            }
-
-            function renderSpouseEditFields(member) {
-                const c = document.getElementById('spouseEditList');
-                if (!c) return;
-                if (!member.spouses || !member.spouses.length) { 
-                    c.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">暂无配偶，点击上方"添加配偶"按钮添加</div>'; 
-                    return; 
-                }
-                let html = '';
-                member.spouses.forEach((spouse, i) => {
-                    const avatar = spouse.avatar ? 
-                        `<img class="spouse-edit-avatar" src="${spouse.avatar}" onclick="${canEdit()?`window.selectSpouseAvatar('${member.id}',${i})`:'return false'}">` : 
-                        `<div class="spouse-edit-avatar-placeholder" onclick="${canEdit()?`window.selectSpouseAvatar('${member.id}',${i})`:'return false'}">${canEdit()?'点击<br>上传':'无头像'}</div>`;
-                    
-                    const sonInLaw = (member.gender === 'female' && spouse.gender === 'male') ? 
-                        `<div class="son-in-law-checkbox">
-                            <input type="checkbox" class="spouse-son-in-law" id="sil_${i}" ${spouse.sonInLaw?'checked':''} ${!canEdit()?'disabled':''}>
-                            <label for="sil_${i}" style="color:#f59e0b;">上门女婿</label>
-                        </div>` : '';
-                    
-                    const living = `<div class="spouse-living-toggle">
-                        <label><input type="radio" name="sl_${i}" value="alive" ${spouse.living!=='deceased'?'checked':''} ${!canEdit()?'disabled':''}>在世</label>
-                        <label><input type="radio" name="sl_${i}" value="deceased" ${spouse.living==='deceased'?'checked':''} ${!canEdit()?'disabled':''}>已故</label>
-                    </div>`;
-                    
-                    const originalHint = spouse.birthOriginal ? 
-                        `<small style="color:#f59e0b; display:block; font-size:0.6rem;">原: ${spouse.birthOriginal}</small>` : '';
-                    
-                    const remove = canRemoveSpouse() ? 
-                        `<button class="action-btn remove-spouse" onclick="window.removeSpouseFromEdit('${member.id}',${i})">✕ 移除</button>` : '';
-                    
-                    html += `<div class="spouse-edit-item">
-                        ${avatar}
-                        <input type="text" class="spouse-name" value="${escapeHtml(spouse.name||'')}" placeholder="配偶姓名" ${!canEdit()?'disabled':''}>
-                        <select class="spouse-gender" ${!canEdit()?'disabled':''}>
-                            <option value="female" ${spouse.gender==='female'?'selected':''}>妻</option>
-                            <option value="male" ${spouse.gender==='male'?'selected':''}>夫</option>
-                        </select>
-                        <div style="display:flex; flex-direction:column;">
-                            <input type="date" class="spouse-birth" value="${spouse.birth||''}" placeholder="出生日期" ${!canEdit()?'disabled':''}>
-                            ${originalHint}
-                        </div>
-                        ${living}
-                        <input type="text" class="spouse-bio-input" value="${escapeHtml(spouse.bio||'')}" placeholder="配偶简介..." ${!canEdit()?'disabled':''}>
-                        ${sonInLaw}
-                        ${remove}
-                    </div>`;
-                });
-                c.innerHTML = html;
-            }
-
-            window.selectSpouseAvatar = function(mid, si) { 
-                if (!canEdit()) return; 
-                const i = document.createElement('input'); 
-                i.type='file'; 
-                i.accept='image/*'; 
-                i.onchange=e=>handleSpouseFileSelect(e,mid,si); 
-                i.click(); 
-            };
-            
-            window.selectChildAvatar = function(mid, ci) { 
-                if (!canEdit()) return; 
-                const i = document.createElement('input'); 
-                i.type='file'; 
-                i.accept='image/*'; 
-                i.onchange=e=>handleChildFileSelect(e,mid,ci); 
-                i.click(); 
-            };
-
-            // ---------- 编辑面板 ----------
-            function openEditPanel(id) {
-                const m = findMemberById(id);
-                if (!m) return;
+            function handleUploadButtonClick() {
+                if (!canEdit()) { alert('当前为浏览模式，无法上传图片'); return; }
+                if (!currentEditingId) { alert('请先选择一个成员'); return; }
                 
-                currentEditingId = id;
-                
-                const nameEl = document.getElementById('editName');
-                const genderEl = document.getElementById('editGender');
-                const rankEl = document.getElementById('editRank');
-                const birthEl = document.getElementById('editBirthDate');
-                const deathEl = document.getElementById('editDeathDate');
-                const bioEl = document.getElementById('editBio');
-                
-                if (nameEl) nameEl.value = m.name || '';
-                if (genderEl) genderEl.value = m.gender || 'male';
-                if (rankEl) rankEl.value = m.rank || '0';
-                
-                if (m.birth && m.birth.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    if (birthEl) birthEl.value = m.birth;
-                } else {
-                    if (birthEl) birthEl.value = '';
-                    if (m.birth) {
-                        alert(`该成员的出生日期为 "${m.birth}"，不是标准日期格式。请在日期选择器中重新选择或输入标准日期。`);
-                    }
-                }
-                
-                if (deathEl) deathEl.value = m.death && m.death.match(/^\d{4}-\d{2}-\d{2}$/) ? m.death : '';
-                
-                if (m.living === 'deceased') {
-                    document.getElementById('statusDeceased').checked = true;
-                    document.getElementById('deathDateGroup').style.display = 'block';
-                } else {
-                    document.getElementById('statusAlive').checked = true;
-                    document.getElementById('deathDateGroup').style.display = 'none';
-                }
-                
-                updateAge();
-                if (bioEl) bioEl.value = m.bio || '';
-                
-                const disabled = !canEdit();
-                ['editName','editGender','editRank','editBirthDate','editDeathDate','statusAlive','statusDeceased','editBio'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.disabled = disabled;
-                });
-                
-                const ageEl = document.getElementById('editAge');
-                if (ageEl) ageEl.disabled = true;
-                
-                const delBtn = document.getElementById('deleteMemberBtn');
-                const delWarn = document.getElementById('deleteWarning');
-                if (canDelete()) { 
-                    if (delBtn) delBtn.style.display = 'inline-block'; 
-                    if (delWarn) delWarn.style.display = 'none'; 
-                } else { 
-                    if (delBtn) delBtn.style.display = 'none'; 
-                    if (delWarn) delWarn.style.display = 'inline-block'; 
-                }
-                
-                updateAvatarDisplay(m.avatar);
-                
-                // 清空并更新 GitHub 相关下拉框
-                const usernameEl = document.getElementById('githubUsername');
-                const repoEl = document.getElementById('githubRepo');
-                const branchEl = document.getElementById('githubBranch');
-                const tokenEl = document.getElementById('githubToken');
-                const urlEl = document.getElementById('githubUploadedUrl');
-                
-                if (usernameEl) usernameEl.value = '';
-                if (repoEl) repoEl.value = '';
-                if (branchEl) branchEl.value = 'main';
-                if (tokenEl) tokenEl.value = '';
-                if (urlEl) urlEl.value = '';
-                
-                // 重置上传目标
-                currentUploadTarget = {
-                    type: 'member',
-                    spouseIndex: null,
-                    childIndex: null
-                };
-                
-                // 更新配偶和子女下拉框
-                updateSpouseSelect(m);
-                updateChildSelect(m);
-                
-                // 监听上传类型选择变化
-                const targetTypeEl = document.getElementById('uploadTargetType');
-                if (targetTypeEl) {
-                    targetTypeEl.addEventListener('change', function(e) {
-                        const type = e.target.value;
-                        const spouseSelect = document.getElementById('spouseSelect');
-                        const childSelect = document.getElementById('childSelect');
-                        
-                        if (spouseSelect) spouseSelect.style.display = type === 'spouse' ? 'block' : 'none';
-                        if (childSelect) childSelect.style.display = type === 'child' ? 'block' : 'none';
-                        
-                        currentUploadTarget.type = type;
-                        if (type !== 'spouse') currentUploadTarget.spouseIndex = null;
-                        if (type !== 'child') currentUploadTarget.childIndex = null;
-                    });
-                }
-                
-                // 监听配偶选择变化
-                const spouseSelect = document.getElementById('spouseSelect');
-                if (spouseSelect) {
-                    spouseSelect.addEventListener('change', function(e) {
-                        const value = e.target.value;
-                        if (value) {
-                            currentUploadTarget.spouseIndex = parseInt(value);
-                        } else {
-                            currentUploadTarget.spouseIndex = null;
-                        }
-                    });
-                }
-                
-                // 监听子女选择变化
-                const childSelect = document.getElementById('childSelect');
-                if (childSelect) {
-                    childSelect.addEventListener('change', function(e) {
-                        const value = e.target.value;
-                        if (value) {
-                            currentUploadTarget.childIndex = parseInt(value);
-                        } else {
-                            currentUploadTarget.childIndex = null;
-                        }
-                    });
-                }
-                
-                if (!m.spouses) m.spouses = [];
-                if (!m.children) m.children = [];
-                
-                renderSpouseEditFields(m);
-                renderChildrenEditFields(m);
-                
-                const gen = calculateGeneration(id);
-                const nameSpan = document.getElementById('editingMemberName');
-                if (nameSpan) nameSpan.textContent = ` (${m.name} - 第${gen}代)`;
-                
-                const panel = document.getElementById('editPanel');
-                if (panel) {
-                    panel.style.display = 'block';
-                    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-
-            // 更新配偶选择下拉框
-            function updateSpouseSelect(member) {
-                const select = document.getElementById('spouseSelect');
-                if (!select) return;
-                
-                select.innerHTML = '<option value="">请选择配偶</option>';
-                
-                if (member.spouses && member.spouses.length > 0) {
-                    member.spouses.forEach((spouse, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        option.textContent = `${spouse.name} (${spouse.gender === 'male' ? '夫' : '妻'})`;
-                        select.appendChild(option);
-                    });
-                }
-            }
-
-            // 更新子女选择下拉框
-            function updateChildSelect(member) {
-                const select = document.getElementById('childSelect');
-                if (!select) return;
-                
-                select.innerHTML = '<option value="">请选择子女</option>';
-                
-                if (member.children && member.children.length > 0) {
-                    member.children.forEach((child, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        option.textContent = `${child.name} (${child.gender === 'male' ? '子' : '女'})`;
-                        select.appendChild(option);
-                    });
-                }
-            }
-
-            document.getElementById('statusAlive').addEventListener('change', function() {
-                if (this.checked) { 
-                    document.getElementById('deathDateGroup').style.display = 'none'; 
-                    document.getElementById('editDeathDate').value = ''; 
-                }
-                updateAge();
-            });
-            
-            document.getElementById('statusDeceased').addEventListener('change', function() {
-                if (this.checked) document.getElementById('deathDateGroup').style.display = 'block';
-                updateAge();
-            });
-
-            function updateAge() {
-                const b = document.getElementById('editBirthDate').value;
-                const d = document.getElementById('statusDeceased').checked ? document.getElementById('editDeathDate').value : null;
-                const ageEl = document.getElementById('editAge');
-                if (ageEl) {
-                    ageEl.value = b ? calculateAge(b, d) : '';
-                }
-            }
-            
-            document.getElementById('editBirthDate').addEventListener('change', updateAge);
-            document.getElementById('editDeathDate').addEventListener('change', updateAge);
-
-            function calculateGeneration(id, node = familyData, cur = 1) {
-                if (!node || !node.members) return null;
-                for (const m of node.members) {
-                    if (m.id === id) return cur;
-                    if (m.children && m.children.length) {
-                        const f = calculateGeneration(id, { members: m.children }, cur + 1);
-                        if (f) return f;
-                    }
-                }
-                return null;
-            }
-
-            // ---------- 保存编辑 ----------
-            async function saveEdit() {
-                if (!canEdit()) { alert('当前为浏览模式，无法保存修改'); return; }
-                if (!currentEditingId) return;
-                
-                const m = findMemberById(currentEditingId);
-                if (!m) return;
-                
-                const old = { 
-                    name:m.name, 
-                    gender:m.gender, 
-                    rank:m.rank, 
-                    birth:m.birth, 
-                    death:m.death, 
-                    living:m.living, 
-                    bio:m.bio 
-                };
-                
-                const nameEl = document.getElementById('editName');
-                const genderEl = document.getElementById('editGender');
-                const rankEl = document.getElementById('editRank');
-                const birthEl = document.getElementById('editBirthDate');
-                const deathEl = document.getElementById('editDeathDate');
-                const bioEl = document.getElementById('editBio');
-                
-                if (nameEl) m.name = nameEl.value.trim() || '无名';
-                if (genderEl) m.gender = genderEl.value;
-                if (rankEl) m.rank = rankEl.value;
-                
-                if (birthEl) {
-                    const birthValue = birthEl.value;
-                    if (birthValue) {
-                        m.birth = birthValue;
-                    } else {
-                        m.birth = '';
-                    }
-                }
-                
-                if (deathEl) m.death = deathEl.value;
-                m.living = document.getElementById('statusAlive').checked ? 'alive' : 'deceased';
-                if (bioEl) m.bio = bioEl.value;
-                
-                let changes = [];
-                if (old.name !== m.name) changes.push(`姓名从 "${old.name}" 改为 "${m.name}"`);
-                if (old.gender !== m.gender) changes.push(`性别从 ${old.gender==='male'?'男':'女'} 改为 ${m.gender==='male'?'男':'女'}`);
-                if (old.rank !== m.rank) changes.push(`排行从 ${getRankText(old.rank)||'未设置'} 改为 ${getRankText(m.rank)||'未设置'}`);
-                if (old.birth !== m.birth) changes.push(`出生日期从 "${old.birth||'空'}" 改为 "${m.birth||'空'}"`);
-                if (old.death !== m.death) changes.push(`去世日期从 "${old.death||'空'}" 改为 "${m.death||'空'}"`);
-                if (old.living !== m.living) changes.push(`状态从 ${old.living==='alive'?'在世':'已故'} 改为 ${m.living==='alive'?'在世':'已故'}`);
-                if (old.bio !== m.bio) changes.push(`简介已修改`);
-                
-                if (changes.length) modificationLog.addLog('修改信息', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 修改了成员 "${m.name}" 的信息：${changes.join('；')}`);
-
-                const newSpouses = [];
-                document.querySelectorAll('.spouse-edit-item').forEach((item, idx) => {
-                    const nameInput = item.querySelector('.spouse-name');
-                    if (!nameInput) return;
-                    
-                    const name = nameInput.value.trim();
-                    if (name) {
-                        const oldSpouse = m.spouses?.[idx];
-                        let living = 'alive';
-                        item.querySelectorAll('input[type="radio"][name^="sl_"]').forEach(r => { 
-                            if (r.checked) living = r.value; 
-                        });
-                        const sonInLawCheck = item.querySelector('.spouse-son-in-law');
-                        const sonInLaw = sonInLawCheck ? sonInLawCheck.checked : false;
-                        
-                        const birthInput = item.querySelector('.spouse-birth');
-                        let birthValue = birthInput ? birthInput.value : '';
-                        
-                        if (oldSpouse) {
-                            if (oldSpouse.name !== name) modificationLog.addLog('修改配偶', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 将成员 "${m.name}" 的配偶 "${oldSpouse.name}" 改名为 "${name}"`);
-                            if (oldSpouse.living !== living) modificationLog.addLog('修改配偶状态', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 将成员 "${m.name}" 的配偶 "${name}" 的状态从 ${oldSpouse.living==='alive'?'在世':'已故'} 改为 ${living==='alive'?'在世':'已故'}`);
-                            if (oldSpouse.sonInLaw !== sonInLaw) modificationLog.addLog('修改配偶类型', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 将成员 "${m.name}" 的配偶 "${name}" ${sonInLaw?'标记为上门女婿':'取消上门女婿标记'}`);
-                        }
-                        
-                        const genderSelect = item.querySelector('.spouse-gender');
-                        const bioInput = item.querySelector('.spouse-bio-input');
-                        
-                        newSpouses.push({ 
-                            name, 
-                            gender: genderSelect ? genderSelect.value : 'female', 
-                            birth: birthValue,
-                            bio: bioInput ? bioInput.value : '', 
-                            avatar: oldSpouse?.avatar || '', 
-                            living, 
-                            sonInLaw 
-                        });
-                    }
-                });
-
-                const newChildren = [];
-                document.querySelectorAll('.child-edit-item').forEach((item, idx) => {
-                    const nameInput = item.querySelector('.child-name');
-                    if (!nameInput) return;
-                    
-                    const name = nameInput.value.trim();
-                    if (name) {
-                        const oldChild = m.children?.[idx];
-                        
-                        let living = 'alive';
-                        item.querySelectorAll('input[type="radio"][name^="cl_"]').forEach(r => { 
-                            if (r.checked) living = r.value; 
-                        });
-                        
-                        if (oldChild && oldChild.name !== name) modificationLog.addLog('修改子女', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 将成员 "${m.name}" 的子女 "${oldChild.name}" 改名为 "${name}"`);
-                        if (oldChild && oldChild.living !== living) modificationLog.addLog('修改子女状态', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 将成员 "${m.name}" 的子女 "${name}" 的状态从 ${oldChild.living==='alive'?'在世':'已故'} 改为 ${living==='alive'?'在世':'已故'}`);
-                        
-                        const birthInput = item.querySelector('.child-birth');
-                        let birthValue = birthInput ? birthInput.value : '';
-                        
-                        const genderSelect = item.querySelector('.child-gender');
-                        const rankSelect = item.querySelector('.child-rank');
-                        const bioInput = item.querySelector('.child-bio-input');
-                        
-                        newChildren.push({
-                            id: oldChild?.id || ('m_'+Date.now()+'_'+Math.random().toString(36).substr(2,4)+idx),
-                            name, 
-                            gender: genderSelect ? genderSelect.value : 'male', 
-                            birth: birthValue,
-                            rank: rankSelect ? rankSelect.value : oldChild?.rank || '0',
-                            bio: bioInput ? bioInput.value : '', 
-                            avatar: oldChild?.avatar || '',
-                            living: living,
-                            spouses: oldChild?.spouses || [], 
-                            children: oldChild?.children || []
-                        });
-                    }
-                });
-                
-                m.spouses = newSpouses;
-                m.children = newChildren;
-                
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                document.getElementById('editPanel').style.display = 'none'; 
-                currentEditingId = null;
-            }
-
-            function cancelEdit() {
-                document.getElementById('editPanel').style.display = 'none';
-                currentEditingId = null;
-                document.getElementById('cropperModal').style.display = 'none';
-                if (cropper) { cropper.destroy(); cropper = null; }
-            }
-
-            function showDeleteConfirm() {
-                if (!canDelete()) { alert('只有管理员可以删除成员'); return; }
-                if (!currentEditingId) return;
-                const m = findMemberById(currentEditingId);
-                if (!m) return;
-                const nameSpan = document.getElementById('deleteMemberName');
-                if (nameSpan) nameSpan.textContent = m.name;
-                document.getElementById('deleteConfirmModal').style.display = 'flex';
-            }
-            function hideDeleteConfirm() { document.getElementById('deleteConfirmModal').style.display = 'none'; }
-            function confirmDelete() { if (currentEditingId) { deleteMember(currentEditingId); hideDeleteConfirm(); } }
-
-            function addChildFromEditPanel() { 
-                if (!canAdd()) { alert('当前为浏览模式，无法添加子女'); return; } 
-                if (currentEditingId) addChild(currentEditingId); 
-            }
-            
-            function addSpouseFromEditPanel() { 
-                if (!canAdd()) { alert('当前为浏览模式，无法添加配偶'); return; } 
-                if (currentEditingId) addSpouse(currentEditingId); 
-            }
-
-            async function removeSpouseFromEdit(mid, idx) {
-                if (!canRemoveSpouse()) { alert('只有管理员可以移除配偶'); return; }
-                const m = findMemberById(mid);
-                if (!m || !m.spouses) return;
-                const name = m.spouses[idx]?.name || '未命名配偶';
-                m.spouses.splice(idx, 1);
-                renderSpouseEditFields(m);
-                await saveToLocal();
-                modificationLog.addLog('移除配偶', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 移除了成员 "${m.name}" 的配偶 "${name}"`);
-            }
-            window.removeSpouseFromEdit = removeSpouseFromEdit;
-
-            async function removeChildFromEdit(mid, idx) {
-                if (!canRemoveChild()) { alert('只有管理员可以移除子女'); return; }
-                const m = findMemberById(mid);
-                if (!m || !m.children) return;
-                const name = m.children[idx]?.name || '未命名子女';
-                m.children.splice(idx, 1);
-                renderChildrenEditFields(m);
-                await saveToLocal();
-                modificationLog.addLog('移除子女', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 移除了成员 "${m.name}" 的子女 "${name}"`);
-            }
-            window.removeChildFromEdit = removeChildFromEdit;
-
-            function getSpouseTitle(s) { 
-                return s.sonInLaw ? '上门女婿' : (s.gender === 'male' ? '夫' : '妻'); 
-            }
-
-            // ---------- 添加成员 ----------
-            async function addAncestor() {
-                if (!canAddAncestor()) { alert('只有管理员可以添上一级成员'); return; }
-                if (!canAdd()) { alert('当前为浏览模式，无法添上一级'); return; }
-                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-                const old = familyData.members.map(m => m.name).join('、');
-                familyData.members = [{ 
-                    id, 
-                    name: '祖先', 
-                    gender: 'male', 
-                    birth: '', 
-                    death: '', 
-                    rank: '0', 
-                    living: 'alive', 
-                    bio: '', 
-                    avatar: '', 
-                    spouses: [], 
-                    children: familyData.members 
-                }];
-                expandedSet.add(id); 
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                modificationLog.addLog('添上级', `管理员 ${currentLoggedInUser} 添加了新的祖先成员 "祖先"，将原有成员 [${old}] 作为其后代`);
-                openEditPanel(id);
-            }
-
-            async function addRootMember() {
-                if (!canAdd()) { alert('当前为浏览模式，无法添加成员'); return; }
-                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-                familyData.members.push({ 
-                    id, 
-                    name: '新成员', 
-                    gender: 'male', 
-                    birth: '', 
-                    death: '', 
-                    rank: '0', 
-                    living: 'alive', 
-                    bio: '', 
-                    avatar: '', 
-                    spouses: [], 
-                    children: [] 
-                });
-                expandedSet.add('root'); 
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                modificationLog.addLog('添加成员', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 添加了新根成员 "新成员"`);
-                openEditPanel(id);
-            }
-
-            async function addChild(pid) {
-                if (!canAdd()) { alert('当前为浏览模式，无法添加子女'); return; }
-                const p = findMemberById(pid);
-                if (!p) return;
-                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-                if (!p.children) p.children = [];
-                p.children.push({ 
-                    id, 
-                    name: '新子女', 
-                    gender: 'male', 
-                    birth: '', 
-                    death: '', 
-                    rank: '0', 
-                    living: 'alive', 
-                    bio: '', 
-                    avatar: '', 
-                    spouses: [], 
-                    children: [] 
-                });
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                modificationLog.addLog('添加子女', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 为成员 "${p.name}" 添加了子女 "新子女"`);
-                renderChildrenEditFields(p);
-            }
-
-            async function addSpouse(mid) {
-                if (!canAdd()) { alert('当前为浏览模式，无法添加配偶'); return; }
-                const m = findMemberById(mid);
-                if (!m) return;
-                if (!m.spouses) m.spouses = [];
-                m.spouses.push({ 
-                    name: '新配偶', 
-                    gender: m.gender === 'male' ? 'female' : 'male', 
-                    birth: '', 
-                    death: '', 
-                    rank: '0', 
-                    living: 'alive', 
-                    bio: '', 
-                    avatar: '', 
-                    sonInLaw: false 
-                });
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                modificationLog.addLog('添加配偶', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 为成员 "${m.name}" 添加了配偶 "新配偶"`);
-                renderSpouseEditFields(m);
-            }
-
-            async function deleteMember(mid) {
-                if (!canDelete()) { alert('只有管理员可以删除成员'); return; }
-                const m = findMemberById(mid);
-                if (!m) return;
-                const name = m.name;
-                if (familyData.members.some(m => m.id === mid)) {
-                    familyData.members = familyData.members.filter(m => m.id !== mid);
-                } else {
-                    const parent = findParentNode(mid);
-                    if (parent && parent.parent && parent.parent.children) {
-                        parent.parent.children = parent.parent.children.filter(c => c.id !== mid);
-                    }
-                }
-                document.getElementById('editPanel').style.display = 'none'; 
-                currentEditingId = null;
-                renderTree(); 
-                updateGenerationStats(); 
-                updateStatistics(); 
-                await saveToLocal();
-                modificationLog.addLog('删除成员', `管理员 ${currentLoggedInUser} 删除了成员 "${name}" 及其所有关联信息`);
-            }
-
-            // ---------- 树渲染 ----------
-            function collectAllMemberIds(node) {
-                let ids = [];
-                if (!node || !node.members) return ids;
-                for (const m of node.members) {
-                    ids.push(m.id);
-                    if (m.children && m.children.length) ids = ids.concat(collectAllMemberIds({ members: m.children }));
-                }
-                return ids;
-            }
-
-            function expandAll() { 
-                collectAllMemberIds(familyData).forEach(id => expandedSet.add(id)); 
-                renderTree(); 
-            }
-            
-            function collapseAll() { 
-                expandedSet.clear(); 
-                expandedSet.add('root'); 
-                renderTree(); 
-            }
-
-            function toggleNode(id, e) {
-                e.stopPropagation();
-                if (expandedSet.has(id)) expandedSet.delete(id); else expandedSet.add(id);
-                renderTree();
-                if (currentSearchTerm.trim()) applySearchHighlight(currentSearchTerm);
-            }
-
-            function sortByRank(ms) {
-                return [...ms].sort((a, b) => {
-                    const ra = parseInt(a.rank) || 0, rb = parseInt(b.rank) || 0;
-                    return ra || rb ? ra - rb : (a.name || '').localeCompare(b.name || '', 'zh-CN');
-                });
-            }
-
-            function renderNode(node, level = 0, gen = 1) {
-                if (!node || !node.members || !node.members.length) return '';
-                const sorted = sortByRank(node.members);
-                let html = '';
-                for (const m of sorted) {
-                    const hasKids = m.children && m.children.length > 0;
-                    const expanded = expandedSet.has(m.id);
-                    const expander = expanded ? '−' : '+';
-                    const leaf = hasKids ? '' : 'leaf';
-                    const deceased = m.living === 'deceased' ? 'deceased' : '';
-                    
-                    let ageDisplay = '';
-                    if (m.birth) {
-                        if (m.birth.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                            ageDisplay = calculateAge(m.birth, m.death);
-                        } else {
-                            ageDisplay = formatDateForDisplay(m.birth);
-                        }
-                    }
-                    
-                    const status = m.living === 'deceased' ? '故' : '';
-                    
-                    let spouses = '';
-                    if (m.spouses && m.spouses.length) {
-                        spouses = '<div class="spouses-list">';
-                        m.spouses.forEach(s => {
-                            const title = getSpouseTitle(s);
-                            let tClass = s.sonInLaw ? 'son-in-law' : (s.gender === 'male' ? 'husband' : 'wife');
-                            const sDeceased = s.living === 'deceased' ? 'deceased' : '';
-                            const av = s.avatar ? `<img class="spouse-avatar" src="${s.avatar}">` : '';
-                            
-                            const spouseStatus = s.living === 'deceased' ? '<span class="status-badge deceased" style="margin-left:2px;">故</span>' : '';
-                            
-                            spouses += `<span class="spouse-item-box ${sDeceased}">${av}<span class="spouse-title ${tClass}">${title}</span><span class="spouse-name-box ${s.gender}">${s.name}${spouseStatus}</span></span>`;
-                        });
-                        spouses += '</div>';
-                    }
-                    
-                    const genClass = `gen-${Math.min(gen, 9)}`;
-                    
-                    html += `<li>
-                        <div class="node-row ${deceased}" data-member-id="${m.id}" data-generation="${gen}" onclick="window.handleRowClick(event,'${m.id}')">
-                            <span class="expander ${leaf}" onclick="window.handleExpandClick(event,'${m.id}')">${expander}</span>
-                            <span class="generation-badge ${genClass}">${gen}</span>
-                            <div class="member-content">
-                                <span class="member-integrated-cell ${m.gender}">
-                                    ${m.avatar ? `<img class="cell-avatar" src="${m.avatar}">` : ''}
-                                    <span class="cell-name ${m.gender}">${m.name}</span>
-                                    ${ageDisplay ? `<span class="age-badge">${ageDisplay}</span>` : ''}
-                                    ${status ? `<span class="status-badge deceased">${status}</span>` : ''}
-                                </span>
-                                ${spouses}
-                            </div>
-                            <div class="action-buttons">
-                                ${canEdit() ? 
-                                    `<span class="action-btn edit" onclick="window.editMember(event,'${m.id}')">✎ 编辑</span>` : 
-                                    `<span class="action-btn view" onclick="window.editMember(event,'${m.id}')">👁️ 查看</span>`}
-                            </div>
-                        </div>`;
-                    
-                    if (hasKids && expanded) html += `<ul>${renderNode({ members: m.children }, level + 1, gen + 1)}</ul>`;
-                    html += `</li>`;
-                }
-                return html;
-            }
-
-            function renderTree() {
-                const c = document.getElementById('treeContainer');
-                if (!c) return;
-                
-                const html = renderNode(familyData, 0, 1);
-                c.innerHTML = html ? `<ul class="tree">${html}</ul>` : '<div class="empty-state">🌱 家谱为空，点击"添加根成员"开始</div>';
-                if (currentSearchTerm.trim()) applySearchHighlight(currentSearchTerm);
-                updateGenerationStats(); 
-                updateStatistics();
-            }
-
-            function applySearchHighlight(t) {
-                if (!t.trim()) return;
-                const lt = t.toLowerCase();
-                document.querySelectorAll('.node-row').forEach(r => {
-                    r.classList.toggle('search-match', r.innerText.toLowerCase().includes(lt));
-                });
-            }
-            
-            function clearHighlight() { 
-                document.querySelectorAll('.node-row').forEach(r => r.classList.remove('search-match')); 
-            }
-            
-            function performSearch(t) {
-                currentSearchTerm = t;
-                if (!t.trim()) { 
-                    clearHighlight(); 
-                    return; 
-                }
-                expandAll();
-                setTimeout(() => applySearchHighlight(t), 30);
-            }
-
-            // ---------- 日志 ----------
-            function showLogModal() { 
-                modificationLog.renderLogs(); 
-                document.getElementById('logModal').style.display = 'flex'; 
-            }
-            
-            function hideLogModal() { 
-                document.getElementById('logModal').style.display = 'none'; 
-            }
-            
-            function clearLogs() {
-                if (currentUserRole !== 'admin') { 
-                    alert('只有管理员可以清空日志'); 
-                    return; 
-                }
-                if (confirm('确定要清空所有修改日志吗？此操作不可撤销。')) { 
-                    modificationLog.clearLogs(); 
-                    modificationLog.renderLogs(); 
-                }
-            }
-
-            window.handleExpandClick = function(e, id) { 
-                e.stopPropagation(); 
-                toggleNode(id, e); 
-            };
-            
-            window.handleRowClick = function(e, id) {
-                document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected', 'current-user'));
-                e.currentTarget.classList.add('selected');
-            };
-            
-            window.editMember = function(e, id) { 
-                e.stopPropagation(); 
-                openEditPanel(id); 
-            };
-
-            // ---------- 自动保存 ----------
-            function startAutoSaveTimer() {
-                stopAutoSaveTimer();
-                autoSaveTimer = setInterval(() => { 
-                    if (autoSaveEnabled) saveToLocal(false); 
-                }, 5 * 60 * 1000);
-            }
-            
-            function stopAutoSaveTimer() { 
-                if (autoSaveTimer) { 
-                    clearInterval(autoSaveTimer); 
-                    autoSaveTimer = null; 
-                } 
-            }
-
-            async function toggleAutoSave() {
-                if (!canBackup()) { 
-                    alert('只有管理员可以设置自动保存'); 
-                    return; 
-                }
-                autoSaveEnabled = !autoSaveEnabled;
-                const btn = document.getElementById('autoSaveToggle');
-                const status = document.getElementById('autoSaveStatus');
-                if (autoSaveEnabled) {
-                    if (btn) btn.textContent = '💾 自动保存: 开启'; 
-                    if (btn) btn.className = 'btn warning';
-                    if (status) status.innerHTML = '⚡ 自动保存：已开启，每5分钟自动保存';
-                    startAutoSaveTimer();
-                    modificationLog.addLog('设置', `管理员 ${currentLoggedInUser} 开启了自动保存`);
-                } else {
-                    if (btn) btn.textContent = '💾 自动保存: 关闭'; 
-                    if (btn) btn.className = 'btn';
-                    if (status) status.innerHTML = '⚡ 自动保存：已关闭';
-                    stopAutoSaveTimer();
-                    modificationLog.addLog('设置', `管理员 ${currentLoggedInUser} 关闭了自动保存`);
-                }
-            }
-
-            async function manualSave() {
-                if (!canManualSave()) { 
-                    alert('只有管理员可以手动保存'); 
-                    return; 
-                }
-                const btn = document.getElementById('manualSaveBtn');
-                if (btn) {
-                    btn.disabled = true; 
-                    btn.textContent = '⏳ 保存中...';
-                }
-                try {
-                    if (await saveToLocal(true)) {
-                        lastManualSaveTime = new Date(); 
-                        updateManualSaveTime();
-                        modificationLog.addLog('手动保存', `管理员 ${currentLoggedInUser} 手动保存了数据`);
-                    }
-                } finally { 
-                    if (btn) {
-                        btn.disabled = false; 
-                        btn.textContent = '💾 立即保存'; 
-                    }
-                }
-            }
-
-            // ========== GitHub 直传配置管理 ==========
-            let githubConfig = null;
-
-            function loadGithubConfig() {
-                try {
-                    const saved = localStorage.getItem('githubConfig');
-                    if (saved) {
-                        githubConfig = JSON.parse(saved);
-                        const usernameEl = document.getElementById('githubUsername');
-                        const repoEl = document.getElementById('githubRepo');
-                        const branchEl = document.getElementById('githubBranch');
-                        const tokenEl = document.getElementById('githubToken');
-                        
-                        if (usernameEl) usernameEl.value = githubConfig.username || '';
-                        if (repoEl) repoEl.value = githubConfig.repo || '';
-                        if (branchEl) branchEl.value = githubConfig.branch || 'main';
-                        if (tokenEl) tokenEl.value = githubConfig.token || '';
-                    }
-                } catch (e) {
-                    console.error('加载 GitHub 配置失败', e);
-                }
-            }
-
-            function saveGithubConfig() {
-                const usernameEl = document.getElementById('githubUsername');
-                const repoEl = document.getElementById('githubRepo');
-                const branchEl = document.getElementById('githubBranch');
-                const tokenEl = document.getElementById('githubToken');
-                
-                if (!usernameEl || !repoEl || !branchEl || !tokenEl) return;
-                
-                const config = {
-                    username: usernameEl.value.trim(),
-                    repo: repoEl.value.trim(),
-                    branch: branchEl.value.trim() || 'main',
-                    token: tokenEl.value.trim()
-                };
-                
-                if (!config.username || !config.repo || !config.token) {
-                    alert('请填写完整的 GitHub 配置（用户名、仓库名、Token）');
-                    return;
-                }
-                
-                localStorage.setItem('githubConfig', JSON.stringify(config));
-                githubConfig = config;
-                showSaveToast('✅ GitHub 配置保存成功', 'success');
-            }
-
-            async function testGithubConnection() {
-                if (!githubConfig) {
-                    loadGithubConfig();
-                    if (!githubConfig) {
-                        alert('请先填写并保存 GitHub 配置');
-                        return;
-                    }
-                }
-                
-                try {
-                    const url = `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}`;
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': `token ${githubConfig.token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        showSaveToast(`✅ 连接成功！仓库：${data.name} (${data.private ? '私有' : '公开'})`, 'success');
-                    } else if (response.status === 401) {
-                        alert('❌ 认证失败：Token 无效或已过期');
-                    } else if (response.status === 404) {
-                        alert('❌ 仓库不存在，请检查用户名和仓库名');
-                    } else {
-                        alert(`❌ 连接失败：${response.status} ${response.statusText}`);
-                    }
-                } catch (e) {
-                    alert('❌ 网络错误：' + e.message);
-                }
-            }
-
-            async function uploadToGithub() {
-                if (!canEdit()) {
-                    alert('当前为浏览模式，无法上传图片');
-                    return;
-                }
-                if (!currentEditingId) {
-                    alert('请先选择一个成员');
-                    return;
-                }
-                
-                if (!githubConfig) {
-                    loadGithubConfig();
-                    if (!githubConfig || !githubConfig.username || !githubConfig.repo || !githubConfig.token) {
-                        alert('请先在头像区域填写并保存 GitHub 配置');
-                        return;
-                    }
-                }
-                
-                // 验证上传目标
                 const targetType = currentUploadTarget.type;
                 if (targetType === 'spouse' && currentUploadTarget.spouseIndex === null) {
                     alert('请先选择要上传头像的配偶');
@@ -3054,89 +2018,143 @@
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                
-                input.onchange = async function(e) {
+                input.onchange = function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
-                    
                     if (file.size > 10 * 1024 * 1024) {
                         alert('图片不能超过 10MB');
                         return;
                     }
-                    
-                    const progressContainer = document.getElementById('uploadProgressContainer');
-                    if (progressContainer) progressContainer.style.display = 'block';
-                    updateProgress(0);
-                    
-                    try {
-                        const timestamp = Date.now();
-                        const randomStr = Math.random().toString(36).substring(2, 10);
-                        const fileExt = file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-                        const date = new Date();
-                        const yearMonth = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}`;
-                        const fileName = `family/${yearMonth}/${timestamp}_${randomStr}.${fileExt}`;
-                        
-                        const reader = new FileReader();
-                        reader.onload = async function(readerEvent) {
-                            const content = readerEvent.target.result.split(',')[1];
-                            
-                            const uploadUrl = `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${fileName}`;
-                            
-                            updateProgress(30);
-                            
-                            const response = await fetch(uploadUrl, {
-                                method: 'PUT',
-                                headers: {
-                                    'Authorization': `token ${githubConfig.token}`,
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/vnd.github.v3+json'
-                                },
-                                body: JSON.stringify({
-                                    message: `上传家谱头像 ${fileName}`,
-                                    content: content,
-                                    branch: githubConfig.branch
-                                })
-                            });
-                            
-                            updateProgress(80);
-                            
-                            if (response.ok) {
-                                const result = await response.json();
-                                const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/${githubConfig.username}/${githubConfig.repo}@${githubConfig.branch}/${fileName}`;
-                                
-                                const urlEl = document.getElementById('githubUploadedUrl');
-                                if (urlEl) urlEl.value = jsDelivrUrl;
-                                
-                                updateProgress(100);
-                                setTimeout(() => {
-                                    if (progressContainer) progressContainer.style.display = 'none';
-                                }, 500);
-                                
-                                showSaveToast('✅ 上传成功！', 'success');
-                            } else {
-                                const error = await response.json();
-                                console.error('上传失败', error);
-                                let errorMsg = '上传失败：';
-                                if (response.status === 401) errorMsg += 'Token 无效';
-                                else if (response.status === 403) errorMsg += '权限不足，Token 需要 repo 权限';
-                                else if (response.status === 404) errorMsg += '仓库或分支不存在';
-                                else errorMsg += error.message || '未知错误';
-                                
-                                if (progressContainer) progressContainer.style.display = 'none';
-                                alert(errorMsg);
-                            }
-                        };
-                        
-                        reader.readAsDataURL(file);
-                        
-                    } catch (error) {
-                        console.error('上传失败', error);
-                        if (progressContainer) progressContainer.style.display = 'none';
-                        alert('上传失败：' + error.message);
-                    }
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        initCropperForUpload(event.target.result, file);
+                    };
+                    reader.readAsDataURL(file);
                 };
-                
                 input.click();
+            }
+
+            async function confirmCropAndUpload() {
+                if (!cropper || !pendingUploadFile) { 
+                    document.getElementById('cropperModal').style.display = 'none'; 
+                    return; 
+                }
+                try {
+                    const canvas = cropper.getCroppedCanvas({ 
+                        width: 200,
+                        height: 200, 
+                        imageSmoothingEnabled: true, 
+                        imageSmoothingQuality: 'high' 
+                    });
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                    
+                    document.getElementById('cropperModal').style.display = 'none';
+                    if (cropper) { cropper.destroy(); cropper = null; }
+                    
+                    await uploadToGithubWithBlob(blob);
+                    
+                } catch (e) { 
+                    console.error(e); 
+                    alert('裁剪或上传失败，请重试'); 
+                } finally {
+                    pendingUploadFile = null;
+                }
+            }
+
+            async function uploadToGithubWithBlob(blob) {
+                if (!currentEditingId) {
+                    alert('请先选择一个成员');
+                    return;
+                }
+                
+                if (!githubConfig) {
+                    loadGithubConfig();
+                    if (!githubConfig || !githubConfig.username || !githubConfig.repo || !githubConfig.token) {
+                        alert('请先在头像区域填写并保存 GitHub 配置');
+                        return;
+                    }
+                }
+                
+                const targetType = currentUploadTarget.type;
+                if (targetType === 'spouse' && currentUploadTarget.spouseIndex === null) {
+                    alert('请先选择要上传头像的配偶');
+                    return;
+                }
+                if (targetType === 'child' && currentUploadTarget.childIndex === null) {
+                    alert('请先选择要上传头像的子女');
+                    return;
+                }
+                
+                const progressContainer = document.getElementById('uploadProgressContainer');
+                if (progressContainer) progressContainer.style.display = 'block';
+                updateProgress(0);
+                
+                try {
+                    const timestamp = Date.now();
+                    const randomStr = Math.random().toString(36).substring(2, 10);
+                    const fileExt = 'jpg';
+                    const date = new Date();
+                    const yearMonth = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}`;
+                    const fileName = `family/${yearMonth}/${timestamp}_${randomStr}.${fileExt}`;
+                    
+                    const reader = new FileReader();
+                    reader.onload = async function(readerEvent) {
+                        const content = readerEvent.target.result.split(',')[1];
+                        
+                        const uploadUrl = `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}/contents/${fileName}`;
+                        
+                        updateProgress(30);
+                        
+                        const response = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${githubConfig.token}`,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/vnd.github.v3+json'
+                            },
+                            body: JSON.stringify({
+                                message: `上传家谱头像 ${fileName}`,
+                                content: content,
+                                branch: githubConfig.branch
+                            })
+                        });
+                        
+                        updateProgress(80);
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            const jsDelivrUrl = `https://cdn.jsdelivr.net/gh/${githubConfig.username}/${githubConfig.repo}@${githubConfig.branch}/${fileName}`;
+                            
+                            const urlEl = document.getElementById('githubUploadedUrl');
+                            if (urlEl) urlEl.value = jsDelivrUrl;
+                            
+                            updateProgress(100);
+                            setTimeout(() => {
+                                if (progressContainer) progressContainer.style.display = 'none';
+                            }, 500);
+                            
+                            showSaveToast('✅ 上传成功！', 'success');
+                        } else {
+                            const error = await response.json();
+                            console.error('上传失败', error);
+                            let errorMsg = '上传失败：';
+                            if (response.status === 401) errorMsg += 'Token 无效';
+                            else if (response.status === 403) errorMsg += '权限不足，Token 需要 repo 权限';
+                            else if (response.status === 404) errorMsg += '仓库或分支不存在';
+                            else errorMsg += error.message || '未知错误';
+                            
+                            if (progressContainer) progressContainer.style.display = 'none';
+                            alert(errorMsg);
+                        }
+                    };
+                    
+                    reader.readAsDataURL(blob);
+                    
+                } catch (error) {
+                    console.error('上传失败', error);
+                    if (progressContainer) progressContainer.style.display = 'none';
+                    alert('上传失败：' + error.message);
+                }
             }
 
             function updateProgress(percent) {
@@ -3204,217 +2222,1052 @@
                 showSaveToast('✅ 头像设置成功', 'success');
             }
 
+            // ---------- 头像本地裁剪（原有功能）----------
+            function handleFileSelect(e) {
+                if (!canEdit()) { alert('当前为浏览模式，无法上传头像'); return; }
+                const f = e.target.files[0]; 
+                if (!f) return;
+                const r = new FileReader();
+                r.onload = (e) => initCropper(e.target.result, 'member', currentEditingId, null, null);
+                r.readAsDataURL(f); 
+                e.target.value = '';
+            }
+
+            function initCropper(url, type, id, si, ci) {
+                if (!canEdit()) { alert('当前为浏览模式，无法上传头像'); return; }
+                const modal = document.getElementById('cropperModal');
+                const img = document.getElementById('cropperImage');
+                if (!modal || !img) return;
+                if (cropper) { cropper.destroy(); cropper = null; }
+                img.src = url; 
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    if (!cropper) cropper = new Cropper(img, { 
+                        aspectRatio: 1, 
+                        viewMode: 1, 
+                        dragMode: 'move', 
+                        autoCropArea: 0.8,
+                        cropBoxResizable: true, 
+                        cropBoxMovable: true, 
+                        guides: true, 
+                        center: true, 
+                        highlight: true, 
+                        background: true, 
+                        responsive: true 
+                    });
+                }, 100);
+                window.currentCropTarget = { type, id, spouseIndex: si, childIndex: ci };
+            }
+
+            async function confirmCrop() {
+                if (!cropper || !window.currentCropTarget) { 
+                    document.getElementById('cropperModal').style.display = 'none'; 
+                    return; 
+                }
+                try {
+                    const canvas = cropper.getCroppedCanvas({ 
+                        width: 200,
+                        height: 200, 
+                        imageSmoothingEnabled: true, 
+                        imageSmoothingQuality: 'high' 
+                    });
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    const t = window.currentCropTarget;
+                    if (t.type === 'member') {
+                        const m = findMemberById(t.id);
+                        if (m) { 
+                            m.avatar = dataUrl; 
+                            updateAvatarDisplay(dataUrl); 
+                            await saveToLocal(); 
+                            modificationLog.addLog('更新头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的头像`); 
+                        }
+                    } else if (t.type === 'spouse') {
+                        const m = findMemberById(t.id);
+                        if (m && m.spouses && m.spouses[t.spouseIndex]) {
+                            m.spouses[t.spouseIndex].avatar = dataUrl;
+                            renderSpouseEditFields(m); 
+                            await saveToLocal();
+                            modificationLog.addLog('更新配偶头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的配偶的头像`);
+                        }
+                    } else if (t.type === 'child') {
+                        const m = findMemberById(t.id);
+                        if (m && m.children && m.children[t.childIndex]) {
+                            m.children[t.childIndex].avatar = dataUrl;
+                            renderChildrenEditFields(m); 
+                            await saveToLocal();
+                            modificationLog.addLog('更新子女头像', `${currentUserRole === 'admin' ? '管理员' : '普通成员'} ${currentLoggedInUser} 更新了成员 "${m.name}" 的子女的头像`);
+                        }
+                    }
+                    document.getElementById('cropperModal').style.display = 'none';
+                    if (cropper) { cropper.destroy(); cropper = null; }
+                    renderTree();
+                } catch (e) { console.error(e); alert('裁剪失败，请重试'); }
+            }
+
+            function updateAvatarDisplay(url) {
+                const p = document.getElementById('avatarPreview');
+                const s = document.getElementById('avatarStatus');
+                if (!p || !s) return;
+                if (url) { 
+                    p.src = url; 
+                    s.textContent = '已上传头像'; 
+                } else { 
+                    p.src = ''; 
+                    s.textContent = '暂无头像'; 
+                }
+            }
+
+            // ========== 完整的配偶/子女编辑字段渲染函数 ==========
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function renderSpouseEditFields(member) {
+                const container = document.getElementById('spouseEditList');
+                if (!container) return;
+                
+                if (!member.spouses || member.spouses.length === 0) {
+                    container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">暂无配偶，点击上方"添加配偶"按钮添加</div>';
+                    return;
+                }
+                
+                let html = '';
+                member.spouses.forEach((spouse, index) => {
+                    const avatarHtml = spouse.avatar 
+                        ? `<img class="spouse-edit-avatar" src="${spouse.avatar}" onclick="${canEdit() ? `window.selectSpouseAvatar('${member.id}',${index})` : 'return false'}">`
+                        : `<div class="spouse-edit-avatar-placeholder" onclick="${canEdit() ? `window.selectSpouseAvatar('${member.id}',${index})` : 'return false'}">${canEdit() ? '点击<br>上传' : '无头像'}</div>`;
+                    
+                    const sonInLawHtml = (member.gender === 'female' && spouse.gender === 'male') 
+                        ? `<div class="son-in-law-checkbox">
+                            <input type="checkbox" class="spouse-son-in-law" id="sil_${index}" ${spouse.sonInLaw ? 'checked' : ''} ${!canEdit() ? 'disabled' : ''}>
+                            <label for="sil_${index}" style="color:#f59e0b;">上门女婿</label>
+                           </div>`
+                        : '';
+                    
+                    const livingHtml = `<div class="spouse-living-toggle">
+                        <label><input type="radio" name="sl_${index}" value="alive" ${spouse.living !== 'deceased' ? 'checked' : ''} ${!canEdit() ? 'disabled' : ''}>在世</label>
+                        <label><input type="radio" name="sl_${index}" value="deceased" ${spouse.living === 'deceased' ? 'checked' : ''} ${!canEdit() ? 'disabled' : ''}>已故</label>
+                    </div>`;
+                    
+                    const originalHint = spouse.birthOriginal 
+                        ? `<small style="color:#f59e0b; display:block; font-size:0.6rem;">原: ${spouse.birthOriginal}</small>`
+                        : '';
+                    
+                    const removeBtn = canRemoveSpouse() 
+                        ? `<button class="action-btn remove-spouse" onclick="window.removeSpouseFromEdit('${member.id}',${index})">✕ 移除</button>`
+                        : '';
+                    
+                    html += `<div class="spouse-edit-item">
+                        ${avatarHtml}
+                        <input type="text" class="spouse-name" value="${escapeHtml(spouse.name || '')}" placeholder="配偶姓名" ${!canEdit() ? 'disabled' : ''}>
+                        <select class="spouse-gender" ${!canEdit() ? 'disabled' : ''}>
+                            <option value="female" ${spouse.gender === 'female' ? 'selected' : ''}>妻</option>
+                            <option value="male" ${spouse.gender === 'male' ? 'selected' : ''}>夫</option>
+                        </select>
+                        <div style="display:flex; flex-direction:column;">
+                            <input type="date" class="spouse-birth" value="${spouse.birth || ''}" placeholder="出生日期" ${!canEdit() ? 'disabled' : ''}>
+                            ${originalHint}
+                        </div>
+                        ${livingHtml}
+                        <input type="text" class="spouse-bio-input" value="${escapeHtml(spouse.bio || '')}" placeholder="配偶简介..." ${!canEdit() ? 'disabled' : ''}>
+                        ${sonInLawHtml}
+                        ${removeBtn}
+                    </div>`;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            function renderChildrenEditFields(member) {
+                const container = document.getElementById('childrenEditList');
+                if (!container) return;
+                
+                if (!member.children || member.children.length === 0) {
+                    container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;">暂无子女，点击上方"添加子女"按钮添加</div>';
+                    return;
+                }
+                
+                let html = '';
+                member.children.forEach((child, index) => {
+                    const avatarHtml = child.avatar 
+                        ? `<img class="child-edit-avatar" src="${child.avatar}" onclick="${canEdit() ? `window.selectChildAvatar('${member.id}',${index})` : 'return false'}">`
+                        : `<div class="child-edit-avatar-placeholder" onclick="${canEdit() ? `window.selectChildAvatar('${member.id}',${index})` : 'return false'}">${canEdit() ? '点击<br>上传' : '无头像'}</div>`;
+                    
+                    const rankOptions = [0,1,2,3,4,5,6,7,8,9,10,11,12].map(v => 
+                        `<option value="${v}" ${child.rank == v ? 'selected' : ''}>${v == 0 ? '未设置' : getRankText(v)}</option>`
+                    ).join('');
+                    
+                    const originalHint = child.birthOriginal 
+                        ? `<small style="color:#f59e0b; display:block; font-size:0.6rem;">原: ${child.birthOriginal}</small>`
+                        : '';
+                    
+                    const livingHtml = `<div class="child-living-toggle">
+                        <label><input type="radio" name="cl_${index}" value="alive" ${child.living !== 'deceased' ? 'checked' : ''} ${!canEdit() ? 'disabled' : ''}>在世</label>
+                        <label><input type="radio" name="cl_${index}" value="deceased" ${child.living === 'deceased' ? 'checked' : ''} ${!canEdit() ? 'disabled' : ''}>已故</label>
+                    </div>`;
+                    
+                    const removeBtn = canRemoveChild() 
+                        ? `<button class="action-btn remove-child" onclick="window.removeChildFromEdit('${member.id}',${index})">✕ 移除</button>`
+                        : '';
+                    
+                    html += `<div class="child-edit-item">
+                        ${avatarHtml}
+                        <input type="text" class="child-name" value="${escapeHtml(child.name || '')}" placeholder="子女姓名" ${!canEdit() ? 'disabled' : ''}>
+                        <select class="child-gender" ${!canEdit() ? 'disabled' : ''}>
+                            <option value="male" ${child.gender === 'male' ? 'selected' : ''}>男 ♂</option>
+                            <option value="female" ${child.gender === 'female' ? 'selected' : ''}>女 ♀</option>
+                        </select>
+                        <div style="display:flex; flex-direction:column;">
+                            <input type="date" class="child-birth" value="${child.birth || ''}" placeholder="出生日期" ${!canEdit() ? 'disabled' : ''}>
+                            ${originalHint}
+                        </div>
+                        <select class="child-rank" ${!canEdit() ? 'disabled' : ''}>${rankOptions}</select>
+                        ${livingHtml}
+                        <input type="text" class="child-bio-input" value="${escapeHtml(child.bio || '')}" placeholder="子女简介..." ${!canEdit() ? 'disabled' : ''}>
+                        ${removeBtn}
+                    </div>`;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            window.selectSpouseAvatar = function(mid, si) { 
+                if (!canEdit()) return; 
+                const i = document.createElement('input'); 
+                i.type = 'file'; 
+                i.accept = 'image/*'; 
+                i.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => initCropper(event.target.result, 'spouse', mid, si, null);
+                    reader.readAsDataURL(file);
+                };
+                i.click(); 
+            };
+            
+            window.selectChildAvatar = function(mid, ci) { 
+                if (!canEdit()) return; 
+                const i = document.createElement('input'); 
+                i.type = 'file'; 
+                i.accept = 'image/*'; 
+                i.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => initCropper(event.target.result, 'child', mid, null, ci);
+                    reader.readAsDataURL(file);
+                };
+                i.click(); 
+            };
+
+            window.removeSpouseFromEdit = async function(mid, idx) {
+                if (!canRemoveSpouse()) { alert('只有管理员可以移除配偶'); return; }
+                const m = findMemberById(mid);
+                if (!m || !m.spouses) return;
+                const name = m.spouses[idx]?.name || '未命名配偶';
+                m.spouses.splice(idx, 1);
+                renderSpouseEditFields(m);
+                await saveToLocal();
+                modificationLog.addLog('移除配偶', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 移除了成员 "${m.name}" 的配偶 "${name}"`);
+            };
+
+            window.removeChildFromEdit = async function(mid, idx) {
+                if (!canRemoveChild()) { alert('只有管理员可以移除子女'); return; }
+                const m = findMemberById(mid);
+                if (!m || !m.children) return;
+                const name = m.children[idx]?.name || '未命名子女';
+                m.children.splice(idx, 1);
+                renderChildrenEditFields(m);
+                await saveToLocal();
+                modificationLog.addLog('移除子女', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 移除了成员 "${m.name}" 的子女 "${name}"`);
+            };
+
+            // ========== 编辑面板打开函数 ==========
+            function openEditPanel(id) {
+                const m = findMemberById(id);
+                if (!m) return;
+                
+                currentEditingId = id;
+                
+                document.getElementById('editName').value = m.name || '';
+                document.getElementById('editGender').value = m.gender || 'male';
+                document.getElementById('editRank').value = m.rank || '0';
+                document.getElementById('editBirthDate').value = (m.birth && m.birth.match(/^\d{4}-\d{2}-\d{2}$/)) ? m.birth : '';
+                document.getElementById('editDeathDate').value = (m.death && m.death.match(/^\d{4}-\d{2}-\d{2}$/)) ? m.death : '';
+                
+                if (m.living === 'deceased') {
+                    document.getElementById('statusDeceased').checked = true;
+                    document.getElementById('deathDateGroup').style.display = 'block';
+                } else {
+                    document.getElementById('statusAlive').checked = true;
+                    document.getElementById('deathDateGroup').style.display = 'none';
+                }
+                
+                document.getElementById('editBio').value = m.bio || '';
+                
+                const disabled = !canEdit();
+                ['editName','editGender','editRank','editBirthDate','editDeathDate','statusAlive','statusDeceased','editBio'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.disabled = disabled;
+                });
+                
+                const delBtn = document.getElementById('deleteMemberBtn');
+                const delWarn = document.getElementById('deleteWarning');
+                if (canDelete()) { 
+                    delBtn.style.display = 'inline-block'; 
+                    delWarn.style.display = 'none'; 
+                } else { 
+                    delBtn.style.display = 'none'; 
+                    delWarn.style.display = 'inline-block'; 
+                }
+                
+                updateAvatarDisplay(m.avatar);
+                
+                // 初始化上传目标
+                currentUploadTarget = {
+                    type: 'member',
+                    spouseIndex: null,
+                    childIndex: null
+                };
+                
+                // 更新配偶和子女下拉框
+                updateSpouseSelect(m);
+                updateChildSelect(m);
+                
+                // 监听上传类型变化
+                const targetTypeEl = document.getElementById('uploadTargetType');
+                targetTypeEl.onchange = function(e) {
+                    const type = e.target.value;
+                    document.getElementById('spouseSelect').style.display = type === 'spouse' ? 'block' : 'none';
+                    document.getElementById('childSelect').style.display = type === 'child' ? 'block' : 'none';
+                    currentUploadTarget.type = type;
+                    if (type !== 'spouse') currentUploadTarget.spouseIndex = null;
+                    if (type !== 'child') currentUploadTarget.childIndex = null;
+                };
+                
+                // 监听配偶选择
+                document.getElementById('spouseSelect').onchange = function(e) {
+                    currentUploadTarget.spouseIndex = e.target.value ? parseInt(e.target.value) : null;
+                };
+                
+                // 监听子女选择
+                document.getElementById('childSelect').onchange = function(e) {
+                    currentUploadTarget.childIndex = e.target.value ? parseInt(e.target.value) : null;
+                };
+                
+                if (!m.spouses) m.spouses = [];
+                if (!m.children) m.children = [];
+                
+                renderSpouseEditFields(m);
+                renderChildrenEditFields(m);
+                
+                const gen = calculateGeneration(id);
+                document.getElementById('editingMemberName').textContent = ` (${m.name} - 第${gen}代)`;
+                
+                document.getElementById('editPanel').style.display = 'block';
+                document.getElementById('editPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            function updateSpouseSelect(member) {
+                const select = document.getElementById('spouseSelect');
+                select.innerHTML = '<option value="">请选择配偶</option>';
+                if (member.spouses && member.spouses.length > 0) {
+                    member.spouses.forEach((spouse, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `${spouse.name} (${spouse.gender === 'male' ? '夫' : '妻'})`;
+                        select.appendChild(option);
+                    });
+                }
+            }
+
+            function updateChildSelect(member) {
+                const select = document.getElementById('childSelect');
+                select.innerHTML = '<option value="">请选择子女</option>';
+                if (member.children && member.children.length > 0) {
+                    member.children.forEach((child, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `${child.name} (${child.gender === 'male' ? '子' : '女'})`;
+                        select.appendChild(option);
+                    });
+                }
+            }
+
+            function calculateGeneration(id, node = familyData, cur = 1) {
+                if (!node || !node.members) return null;
+                for (const m of node.members) {
+                    if (m.id === id) return cur;
+                    if (m.children && m.children.length) {
+                        const f = calculateGeneration(id, { members: m.children }, cur + 1);
+                        if (f) return f;
+                    }
+                }
+                return null;
+            }
+
+            // ========== 保存编辑 ==========
+            async function saveEdit() {
+                if (!canEdit()) { alert('当前为浏览模式，无法保存修改'); return; }
+                if (!currentEditingId) return;
+                
+                const m = findMemberById(currentEditingId);
+                if (!m) return;
+                
+                const old = { 
+                    name: m.name, 
+                    gender: m.gender, 
+                    rank: m.rank, 
+                    birth: m.birth, 
+                    death: m.death, 
+                    living: m.living, 
+                    bio: m.bio 
+                };
+                
+                m.name = document.getElementById('editName').value.trim() || '无名';
+                m.gender = document.getElementById('editGender').value;
+                m.rank = document.getElementById('editRank').value;
+                m.birth = document.getElementById('editBirthDate').value || '';
+                m.death = document.getElementById('editDeathDate').value || '';
+                m.living = document.getElementById('statusAlive').checked ? 'alive' : 'deceased';
+                m.bio = document.getElementById('editBio').value || '';
+                
+                // 收集配偶数据
+                const newSpouses = [];
+                document.querySelectorAll('#spouseEditList .spouse-edit-item').forEach((item, idx) => {
+                    const nameInput = item.querySelector('.spouse-name');
+                    if (!nameInput) return;
+                    const name = nameInput.value.trim();
+                    if (name) {
+                        let living = 'alive';
+                        item.querySelectorAll('input[type="radio"][name^="sl_"]').forEach(r => { if (r.checked) living = r.value; });
+                        const sonInLawCheck = item.querySelector('.spouse-son-in-law');
+                        const sonInLaw = sonInLawCheck ? sonInLawCheck.checked : false;
+                        const birthInput = item.querySelector('.spouse-birth');
+                        const birthValue = birthInput ? birthInput.value : '';
+                        const genderSelect = item.querySelector('.spouse-gender');
+                        const bioInput = item.querySelector('.spouse-bio-input');
+                        
+                        newSpouses.push({ 
+                            name, 
+                            gender: genderSelect ? genderSelect.value : 'female', 
+                            birth: birthValue,
+                            bio: bioInput ? bioInput.value : '', 
+                            avatar: m.spouses?.[idx]?.avatar || '', 
+                            living, 
+                            sonInLaw 
+                        });
+                    }
+                });
+                
+                // 收集子女数据
+                const newChildren = [];
+                document.querySelectorAll('#childrenEditList .child-edit-item').forEach((item, idx) => {
+                    const nameInput = item.querySelector('.child-name');
+                    if (!nameInput) return;
+                    const name = nameInput.value.trim();
+                    if (name) {
+                        let living = 'alive';
+                        item.querySelectorAll('input[type="radio"][name^="cl_"]').forEach(r => { if (r.checked) living = r.value; });
+                        const birthInput = item.querySelector('.child-birth');
+                        const birthValue = birthInput ? birthInput.value : '';
+                        const genderSelect = item.querySelector('.child-gender');
+                        const rankSelect = item.querySelector('.child-rank');
+                        const bioInput = item.querySelector('.child-bio-input');
+                        
+                        newChildren.push({
+                            id: m.children?.[idx]?.id || ('m_'+Date.now()+'_'+Math.random().toString(36).substr(2,4)+idx),
+                            name, 
+                            gender: genderSelect ? genderSelect.value : 'male', 
+                            birth: birthValue,
+                            rank: rankSelect ? rankSelect.value : '0',
+                            bio: bioInput ? bioInput.value : '', 
+                            avatar: m.children?.[idx]?.avatar || '',
+                            living: living,
+                            spouses: m.children?.[idx]?.spouses || [], 
+                            children: m.children?.[idx]?.children || []
+                        });
+                    }
+                });
+                
+                m.spouses = newSpouses;
+                m.children = newChildren;
+                
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                document.getElementById('editPanel').style.display = 'none'; 
+                currentEditingId = null;
+            }
+
+            function cancelEdit() {
+                document.getElementById('editPanel').style.display = 'none';
+                currentEditingId = null;
+                document.getElementById('cropperModal').style.display = 'none';
+                if (cropper) { cropper.destroy(); cropper = null; }
+            }
+
+            // ========== 添加成员函数 ==========
+            async function addRootMember() {
+                if (!canAdd()) { alert('当前为浏览模式，无法添加成员'); return; }
+                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                familyData.members.push({ 
+                    id, 
+                    name: '新成员', 
+                    gender: 'male', 
+                    birth: '', 
+                    death: '', 
+                    rank: '0', 
+                    living: 'alive', 
+                    bio: '', 
+                    avatar: '', 
+                    spouses: [], 
+                    children: [] 
+                });
+                expandedSet.add('root'); 
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                modificationLog.addLog('添加成员', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 添加了新根成员 "新成员"`);
+                openEditPanel(id);
+            }
+
+            async function addAncestor() {
+                if (!canAddAncestor()) { alert('只有管理员可以添上一级成员'); return; }
+                if (!canAdd()) { alert('当前为浏览模式，无法添上一级'); return; }
+                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                const old = familyData.members.map(m => m.name).join('、');
+                familyData.members = [{ 
+                    id, 
+                    name: '祖先', 
+                    gender: 'male', 
+                    birth: '', 
+                    death: '', 
+                    rank: '0', 
+                    living: 'alive', 
+                    bio: '', 
+                    avatar: '', 
+                    spouses: [], 
+                    children: familyData.members 
+                }];
+                expandedSet.add(id); 
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                modificationLog.addLog('添上级', `管理员 ${currentLoggedInUser} 添加了新的祖先成员 "祖先"，将原有成员 [${old}] 作为其后代`);
+                openEditPanel(id);
+            }
+
+            function addChildFromEditPanel() { 
+                if (!canAdd()) { alert('当前为浏览模式，无法添加子女'); return; } 
+                if (currentEditingId) addChild(currentEditingId); 
+            }
+            
+            function addSpouseFromEditPanel() { 
+                if (!canAdd()) { alert('当前为浏览模式，无法添加配偶'); return; } 
+                if (currentEditingId) addSpouse(currentEditingId); 
+            }
+
+            async function addChild(pid) {
+                if (!canAdd()) { alert('当前为浏览模式，无法添加子女'); return; }
+                const p = findMemberById(pid);
+                if (!p) return;
+                const id = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                if (!p.children) p.children = [];
+                p.children.push({ 
+                    id, 
+                    name: '新子女', 
+                    gender: 'male', 
+                    birth: '', 
+                    death: '', 
+                    rank: '0', 
+                    living: 'alive', 
+                    bio: '', 
+                    avatar: '', 
+                    spouses: [], 
+                    children: [] 
+                });
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                modificationLog.addLog('添加子女', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 为成员 "${p.name}" 添加了子女 "新子女"`);
+                renderChildrenEditFields(p);
+            }
+
+            async function addSpouse(mid) {
+                if (!canAdd()) { alert('当前为浏览模式，无法添加配偶'); return; }
+                const m = findMemberById(mid);
+                if (!m) return;
+                if (!m.spouses) m.spouses = [];
+                m.spouses.push({ 
+                    name: '新配偶', 
+                    gender: m.gender === 'male' ? 'female' : 'male', 
+                    birth: '', 
+                    death: '', 
+                    rank: '0', 
+                    living: 'alive', 
+                    bio: '', 
+                    avatar: '', 
+                    sonInLaw: false 
+                });
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                modificationLog.addLog('添加配偶', `${currentUserRole==='admin'?'管理员':'普通成员'} ${currentLoggedInUser} 为成员 "${m.name}" 添加了配偶 "新配偶"`);
+                renderSpouseEditFields(m);
+            }
+
+            // ========== 树渲染函数 ==========
+            function renderNode(node, level = 0, gen = 1) {
+                if (!node || !node.members || !node.members.length) return '';
+                
+                const sorted = [...node.members].sort((a, b) => {
+                    const ra = parseInt(a.rank) || 0, rb = parseInt(b.rank) || 0;
+                    return ra || rb ? ra - rb : (a.name || '').localeCompare(b.name || '', 'zh-CN');
+                });
+                
+                let html = '';
+                for (const m of sorted) {
+                    const hasKids = m.children && m.children.length > 0;
+                    const expanded = expandedSet.has(m.id);
+                    const expander = expanded ? '−' : '+';
+                    const leaf = hasKids ? '' : 'leaf';
+                    const deceased = m.living === 'deceased' ? 'deceased' : '';
+                    
+                    let ageDisplay = '';
+                    if (m.birth) {
+                        if (m.birth.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                            ageDisplay = calculateAge(m.birth, m.death);
+                        } else {
+                            ageDisplay = formatDateForDisplay(m.birth);
+                        }
+                    }
+                    
+                    const status = m.living === 'deceased' ? '故' : '';
+                    
+                    let spouses = '';
+                    if (m.spouses && m.spouses.length) {
+                        spouses = '<div class="spouses-list">';
+                        m.spouses.forEach(s => {
+                            const title = s.sonInLaw ? '上门女婿' : (s.gender === 'male' ? '夫' : '妻');
+                            let tClass = s.sonInLaw ? 'son-in-law' : (s.gender === 'male' ? 'husband' : 'wife');
+                            const sDeceased = s.living === 'deceased' ? 'deceased' : '';
+                            const av = s.avatar ? `<img class="spouse-avatar" src="${s.avatar}">` : '';
+                            
+                            spouses += `<span class="spouse-item-box ${sDeceased}">${av}<span class="spouse-title ${tClass}">${title}</span><span class="spouse-name-box ${s.gender}">${s.name}</span></span>`;
+                        });
+                        spouses += '</div>';
+                    }
+                    
+                    const genClass = `gen-${Math.min(gen, 9)}`;
+                    
+                    html += `<li>
+                        <div class="node-row ${deceased}" data-member-id="${m.id}" data-generation="${gen}" onclick="window.handleRowClick(event,'${m.id}')">
+                            <span class="expander ${leaf}" onclick="window.handleExpandClick(event,'${m.id}')">${expander}</span>
+                            <span class="generation-badge ${genClass}">${gen}</span>
+                            <div class="member-content">
+                                <span class="member-integrated-cell ${m.gender}">
+                                    ${m.avatar ? `<img class="cell-avatar" src="${m.avatar}">` : ''}
+                                    <span class="cell-name ${m.gender}">${m.name}</span>
+                                    ${ageDisplay ? `<span class="age-badge">${ageDisplay}</span>` : ''}
+                                    ${status ? `<span class="status-badge deceased">${status}</span>` : ''}
+                                </span>
+                                ${spouses}
+                            </div>
+                            <div class="action-buttons">
+                                ${canEdit() ? 
+                                    `<span class="action-btn edit" onclick="window.editMember(event,'${m.id}')">✎ 编辑</span>` : 
+                                    `<span class="action-btn view" onclick="window.editMember(event,'${m.id}')">👁️ 查看</span>`}
+                            </div>
+                        </div>`;
+                    
+                    if (hasKids && expanded) html += `<ul>${renderNode({ members: m.children }, level + 1, gen + 1)}</ul>`;
+                    html += `</li>`;
+                }
+                return html;
+            }
+
+            function renderTree() {
+                const container = document.getElementById('treeContainer');
+                if (!container) return;
+                const html = renderNode(familyData, 0, 1);
+                container.innerHTML = html ? `<ul class="tree">${html}</ul>` : '<div class="empty-state">🌱 家谱为空，点击"添加根成员"开始</div>';
+                updateGenerationStats(); 
+                updateStatistics();
+            }
+
+            window.handleExpandClick = function(e, id) { 
+                e.stopPropagation(); 
+                if (expandedSet.has(id)) expandedSet.delete(id); else expandedSet.add(id);
+                renderTree();
+            };
+            
+            window.handleRowClick = function(e, id) {
+                document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected', 'current-user'));
+                e.currentTarget.classList.add('selected');
+            };
+            
+            window.editMember = function(e, id) { 
+                e.stopPropagation(); 
+                openEditPanel(id); 
+            };
+
+            // ========== 删除成员 ==========
+            function showDeleteConfirm() {
+                if (!canDelete()) { alert('只有管理员可以删除成员'); return; }
+                if (!currentEditingId) return;
+                const m = findMemberById(currentEditingId);
+                if (!m) return;
+                document.getElementById('deleteMemberName').textContent = m.name;
+                document.getElementById('deleteConfirmModal').style.display = 'flex';
+            }
+            
+            function hideDeleteConfirm() { document.getElementById('deleteConfirmModal').style.display = 'none'; }
+            
+            async function confirmDelete() { 
+                if (!currentEditingId) return;
+                await deleteMember(currentEditingId); 
+                hideDeleteConfirm(); 
+            }
+
+            async function deleteMember(mid) {
+                if (!canDelete()) { alert('只有管理员可以删除成员'); return; }
+                const m = findMemberById(mid);
+                if (!m) return;
+                const name = m.name;
+                
+                if (familyData.members.some(m => m.id === mid)) {
+                    familyData.members = familyData.members.filter(m => m.id !== mid);
+                } else {
+                    const parent = findParentNode(mid);
+                    if (parent && parent.parent && parent.parent.children) {
+                        parent.parent.children = parent.parent.children.filter(c => c.id !== mid);
+                    }
+                }
+                
+                document.getElementById('editPanel').style.display = 'none'; 
+                currentEditingId = null;
+                renderTree(); 
+                updateGenerationStats(); 
+                updateStatistics(); 
+                await saveToLocal();
+                modificationLog.addLog('删除成员', `管理员 ${currentLoggedInUser} 删除了成员 "${name}" 及其所有关联信息`);
+            }
+
+            // ========== GitHub 配置管理 ==========
+            let githubConfig = null;
+
+            function loadGithubConfig() {
+                try {
+                    const saved = localStorage.getItem('githubConfig');
+                    if (saved) {
+                        githubConfig = JSON.parse(saved);
+                        document.getElementById('githubUsername').value = githubConfig.username || '';
+                        document.getElementById('githubRepo').value = githubConfig.repo || '';
+                        document.getElementById('githubBranch').value = githubConfig.branch || 'main';
+                        document.getElementById('githubToken').value = githubConfig.token || '';
+                    }
+                } catch (e) {
+                    console.error('加载 GitHub 配置失败', e);
+                }
+            }
+
+            function saveGithubConfig() {
+                const config = {
+                    username: document.getElementById('githubUsername').value.trim(),
+                    repo: document.getElementById('githubRepo').value.trim(),
+                    branch: document.getElementById('githubBranch').value.trim() || 'main',
+                    token: document.getElementById('githubToken').value.trim()
+                };
+                if (!config.username || !config.repo || !config.token) {
+                    alert('请填写完整的 GitHub 配置');
+                    return;
+                }
+                localStorage.setItem('githubConfig', JSON.stringify(config));
+                githubConfig = config;
+                showSaveToast('✅ GitHub 配置保存成功');
+            }
+
+            async function testGithubConnection() {
+                if (!githubConfig) loadGithubConfig();
+                if (!githubConfig || !githubConfig.username || !githubConfig.repo || !githubConfig.token) {
+                    alert('请先填写并保存 GitHub 配置');
+                    return;
+                }
+                try {
+                    const url = `https://api.github.com/repos/${githubConfig.username}/${githubConfig.repo}`;
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (response.ok) {
+                        showSaveToast('✅ 连接成功！', 'success');
+                    } else if (response.status === 401) {
+                        alert('❌ 认证失败：Token 无效');
+                    } else if (response.status === 404) {
+                        alert('❌ 仓库不存在');
+                    } else {
+                        alert(`❌ 连接失败：${response.status}`);
+                    }
+                } catch (e) {
+                    alert('❌ 网络错误：' + e.message);
+                }
+            }
+
+            // ========== 自动保存 ==========
+            function startAutoSaveTimer() {
+                stopAutoSaveTimer();
+                autoSaveTimer = setInterval(() => { 
+                    if (autoSaveEnabled) saveToLocal(false); 
+                }, 5 * 60 * 1000);
+            }
+            
+            function stopAutoSaveTimer() { 
+                if (autoSaveTimer) { 
+                    clearInterval(autoSaveTimer); 
+                    autoSaveTimer = null; 
+                } 
+            }
+
+            async function toggleAutoSave() {
+                if (!canBackup()) { 
+                    alert('只有管理员可以设置自动保存'); 
+                    return; 
+                }
+                autoSaveEnabled = !autoSaveEnabled;
+                const btn = document.getElementById('autoSaveToggle');
+                const status = document.getElementById('autoSaveStatus');
+                if (autoSaveEnabled) {
+                    btn.textContent = '💾 自动保存: 开启'; 
+                    btn.className = 'btn warning';
+                    status.innerHTML = '⚡ 自动保存：已开启，每5分钟自动保存';
+                    startAutoSaveTimer();
+                    modificationLog.addLog('设置', `管理员 ${currentLoggedInUser} 开启了自动保存`);
+                } else {
+                    btn.textContent = '💾 自动保存: 关闭'; 
+                    btn.className = 'btn';
+                    status.innerHTML = '⚡ 自动保存：已关闭';
+                    stopAutoSaveTimer();
+                    modificationLog.addLog('设置', `管理员 ${currentLoggedInUser} 关闭了自动保存`);
+                }
+            }
+
+            async function manualSave() {
+                if (!canManualSave()) { 
+                    alert('只有管理员可以手动保存'); 
+                    return; 
+                }
+                const btn = document.getElementById('manualSaveBtn');
+                btn.disabled = true; 
+                btn.textContent = '⏳ 保存中...';
+                try {
+                    if (await saveToLocal(true)) {
+                        lastManualSaveTime = new Date(); 
+                        updateManualSaveTime();
+                        modificationLog.addLog('手动保存', `管理员 ${currentLoggedInUser} 手动保存了数据`);
+                    }
+                } finally { 
+                    btn.disabled = false; 
+                    btn.textContent = '💾 立即保存'; 
+                }
+            }
+
             // ========== 初始化 ==========
             window.addEventListener('load', async () => {
-                try {
-                    console.log('🚀 家谱初始化开始...');
-                    
-                    if (isWeChat) {
-                        await new Promise(resolve => setTimeout(resolve, 50));
-                    }
-                    
-                    // 先尝试从本地存储加载
-                    const localData = loadFromLocal();
-                    
-                    // 尝试从 data.json 加载数据（支持 Netlify 和 GitHub Pages）
-                    let serverData = null;
-                    
-                    // 尝试多个可能的路径（兼容不同部署环境）
-                    const possiblePaths = [
-                        `data.json?t=${Date.now()}`,           // 同目录
-                        `./data.json?t=${Date.now()}`,         // 相对路径
-                        `/data.json?t=${Date.now()}`           // 根路径
-                    ];
-                    
-                    for (const path of possiblePaths) {
-                        try {
-                            console.log(`尝试加载: ${path}`);
-                            const response = await fetch(path);
-                            
-                            if (response.ok) {
-                                const remoteData = await response.json();
-                                
-                                // 兼容两种格式：直接是家谱数据，或者是包含 data 字段的备份文件
-                                if (remoteData && remoteData.data && remoteData.data.members) {
-                                    // 备份文件格式：{ version, timestamp, data, ... }
-                                    serverData = migrateAllDates(remoteData.data);
-                                    console.log('✅ 从 data.json 加载备份格式数据成功');
-                                    break;
-                                } else if (remoteData && remoteData.members) {
-                                    // 直接家谱数据格式
-                                    serverData = migrateAllDates(remoteData);
-                                    console.log('✅ 从 data.json 加载家谱格式数据成功');
-                                    break;
-                                }
-                            }
-                        } catch (e) {
-                            // 继续尝试下一个路径
-                            continue;
-                        }
-                    }
-                    
-                    if (!serverData) {
-                        console.log('⚠️ 所有路径都无法加载 data.json，使用本地数据');
-                    }
-                    
-                    // 智能选择数据源：优先使用 data.json
-                    if (serverData) {
-                        familyData = serverData;
-                        showSaveToast('📢 已加载最新家谱数据', 'info');
-                    } else if (localData) {
-                        familyData = localData;
-                        showSaveToast('💾 使用本地缓存数据', 'info');
-                    } else {
-                        familyData = getEmbeddedFamilyData();
-                        showSaveToast('📦 使用默认空数据', 'warning');
-                    }
-                    
-                    // 确保数据格式正确
-                    familyData = migrateAllDates(familyData);
-                    
-                    // 加载日志和快照
-                    modificationLog.logs = modificationLog.loadLogs();
-                    modificationLog.snapshots = modificationLog.loadSnapshots();
-                    
-                    // 加载全局模式
-                    loadGlobalMode();
-                    
-                    // 更新界面
-                    updateGenerationStats();
-                    updateStatistics();
-                    
-                    // 检查自动登录
-                    await checkAutoLogin();
-                    
-                    // 更新日志徽章
-                    modificationLog.updateLogBadge();
-
-                    // 绑定事件
-                    document.getElementById('memberModeTab').addEventListener('click', switchToMemberMode);
-                    document.getElementById('adminModeTab').addEventListener('click', switchToAdminMode);
-                    document.getElementById('memberLoginBtn').addEventListener('click', memberLogin);
-                    document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
-                    document.getElementById('memberName').addEventListener('keypress', (e) => { if (e.key === 'Enter') memberLogin(); });
-                    document.getElementById('adminPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') adminLogin(); });
-                    document.getElementById('logoutBtn').addEventListener('click', logout);
-                    document.getElementById('globalViewModeBtn').addEventListener('click', () => setGlobalMode('view'));
-                    document.getElementById('globalEditModeBtn').addEventListener('click', () => setGlobalMode('edit'));
-                    document.getElementById('expandAllBtn').addEventListener('click', expandAll);
-                    document.getElementById('collapseAllBtn').addEventListener('click', collapseAll);
-                    document.getElementById('addRootBtn').addEventListener('click', addRootMember);
-                    document.getElementById('addAncestorBtn').addEventListener('click', addAncestor);
-                    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
-                    document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
-                    document.getElementById('deleteMemberBtn').addEventListener('click', showDeleteConfirm);
-                    document.getElementById('editPanelAddSpouseBtn').addEventListener('click', addSpouseFromEditPanel);
-                    document.getElementById('editPanelAddChildBtn').addEventListener('click', addChildFromEditPanel);
-                    document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
-                    document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-                    document.getElementById('deleteConfirmModal').addEventListener('click', (e) => { if (e.target === document.getElementById('deleteConfirmModal')) hideDeleteConfirm(); });
-                    
-                    document.getElementById('backupBtn').addEventListener('click', showBackupOptions);
-                    document.getElementById('ucBackupOption').addEventListener('click', () => { backupToUCCloud(); hideBackupOptions(); });
-                    document.getElementById('localBackupOption').addEventListener('click', () => { backupToLocal(); hideBackupOptions(); });
-                    document.getElementById('cancelBackupBtn').addEventListener('click', hideBackupOptions);
-                    document.getElementById('backupModal').addEventListener('click', (e) => { if (e.target === document.getElementById('backupModal')) hideBackupOptions(); });
-                    document.getElementById('backupFileInput').addEventListener('change', (e) => { if (e.target.files.length) { restoreFromFile(e.target.files[0]); e.target.value = ''; } });
-                    
-                    document.getElementById('viewLogBtn').addEventListener('click', showLogModal);
-                    document.getElementById('closeLogBtn').addEventListener('click', hideLogModal);
-                    document.getElementById('closeLogBottomBtn').addEventListener('click', hideLogModal);
-                    document.getElementById('clearLogBtn').addEventListener('click', clearLogs);
-                    document.getElementById('logModal').addEventListener('click', (e) => { if (e.target === document.getElementById('logModal')) hideLogModal(); });
-                    
-                    document.getElementById('photoInput').addEventListener('change', handleFileSelect);
-                    document.getElementById('confirmCropBtn').addEventListener('click', confirmCrop);
-                    document.getElementById('confirmCropBtn').addEventListener('touchstart', (e) => { e.preventDefault(); confirmCrop(); });
-                    document.getElementById('cancelCropBtn').addEventListener('click', () => {
-                        document.getElementById('cropperModal').style.display = 'none';
-                        if (cropper) { cropper.destroy(); cropper = null; }
-                    });
-
-                    // GitHub 事件绑定
-                    document.getElementById('saveGithubConfigBtn').addEventListener('click', saveGithubConfig);
-                    document.getElementById('testGithubBtn').addEventListener('click', testGithubConnection);
-                    document.getElementById('uploadToGithubBtn').addEventListener('click', uploadToGithub);
-                    document.getElementById('copyGithubUrlBtn').addEventListener('click', copyGithubUrl);
-                    document.getElementById('setGithubAvatarBtn').addEventListener('click', setGithubAvatar);
-                    loadGithubConfig();
-
-                    document.getElementById('memberSearchTab').addEventListener('click', function() {
-                        document.getElementById('memberSearchTab').classList.add('active');
-                        document.getElementById('generationSearchTab').classList.remove('active');
-                        document.getElementById('memberSearchPanel').classList.remove('hidden');
-                        document.getElementById('generationSearchPanel').classList.add('hidden');
-                        currentSearchMode = 'member';
-                    });
-
-                    document.getElementById('generationSearchTab').addEventListener('click', function() {
-                        document.getElementById('generationSearchTab').classList.add('active');
-                        document.getElementById('memberSearchTab').classList.remove('active');
-                        document.getElementById('generationSearchPanel').classList.remove('hidden');
-                        document.getElementById('memberSearchPanel').classList.add('hidden');
-                        currentSearchMode = 'generation';
-                        updateGenerationSelector();
-                    });
-
-                    document.getElementById('memberSearchBtn').addEventListener('click', function() {
-                        const name = document.getElementById('memberSearchInput').value.trim();
-                        searchMember(name);
-                    });
-
-                    document.getElementById('memberSearchInput').addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            const name = e.target.value.trim();
-                            searchMember(name);
-                        }
-                    });
-
-                    document.getElementById('clearMemberSearchBtn').addEventListener('click', function() {
-                        document.getElementById('memberSearchInput').value = '';
-                        clearSearch();
-                    });
-
-                    document.getElementById('generationSearchBtn').addEventListener('click', function() {
-                        const gen = document.getElementById('generationSelect').value;
-                        if (gen) {
-                            showGenerationMembers(gen);
-                        } else {
-                            alert('请选择世代');
-                        }
-                    });
-
-                    document.getElementById('clearGenerationSearchBtn').addEventListener('click', function() {
-                        document.getElementById('generationSelect').value = '';
-                        document.getElementById('generationResults').classList.remove('show');
-                    });
-
-                    document.addEventListener('click', (e) => {
-                        if (!e.target.closest('.node-row')) {
-                            document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected', 'current-user'));
-                        }
-                    });
-
-                    document.getElementById('autoSaveToggle').addEventListener('click', toggleAutoSave);
-                    document.getElementById('manualSaveBtn').addEventListener('click', manualSave);
-                    
-                    startAutoSaveTimer();
-                    
-                    window.addEventListener('beforeunload', () => saveToLocal(false));
-                    
-                    renderTree();
-                    
-                    console.log('🎉 家谱初始化完成');
-                    
-                } catch (error) {
-                    console.error('❌ 初始化失败', error);
-                    alert('初始化失败：' + error.message);
+                // 初始化数据
+                const localData = loadFromLocal();
+                if (localData) {
+                    familyData = localData;
+                } else {
+                    familyData = getEmbeddedFamilyData();
                 }
+                
+                modificationLog.logs = modificationLog.loadLogs();
+                modificationLog.snapshots = modificationLog.loadSnapshots();
+                
+                loadGlobalMode();
+                updateGenerationStats();
+                updateStatistics();
+                
+                await checkAutoLogin();
+                
+                modificationLog.updateLogBadge();
+
+                // 绑定事件
+                document.getElementById('memberModeTab').addEventListener('click', switchToMemberMode);
+                document.getElementById('adminModeTab').addEventListener('click', switchToAdminMode);
+                document.getElementById('memberLoginBtn').addEventListener('click', memberLogin);
+                document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+                document.getElementById('memberName').addEventListener('keypress', (e) => { if (e.key === 'Enter') memberLogin(); });
+                document.getElementById('adminPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') adminLogin(); });
+                document.getElementById('logoutBtn').addEventListener('click', logout);
+                document.getElementById('globalViewModeBtn').addEventListener('click', () => setGlobalMode('view'));
+                document.getElementById('globalEditModeBtn').addEventListener('click', () => setGlobalMode('edit'));
+                document.getElementById('expandAllBtn').addEventListener('click', () => {
+                    collectAllMemberIds(familyData).forEach(id => expandedSet.add(id));
+                    renderTree();
+                });
+                document.getElementById('collapseAllBtn').addEventListener('click', () => {
+                    expandedSet.clear();
+                    expandedSet.add('root');
+                    renderTree();
+                });
+                document.getElementById('addRootBtn').addEventListener('click', addRootMember);
+                document.getElementById('addAncestorBtn').addEventListener('click', addAncestor);
+                
+                document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+                document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+                document.getElementById('deleteMemberBtn').addEventListener('click', showDeleteConfirm);
+                document.getElementById('editPanelAddSpouseBtn').addEventListener('click', addSpouseFromEditPanel);
+                document.getElementById('editPanelAddChildBtn').addEventListener('click', addChildFromEditPanel);
+                document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
+                document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+                document.getElementById('deleteConfirmModal').addEventListener('click', (e) => { if (e.target === document.getElementById('deleteConfirmModal')) hideDeleteConfirm(); });
+                
+                // 上传相关
+                document.getElementById('uploadToGithubBtn').addEventListener('click', handleUploadButtonClick);
+                document.getElementById('confirmCropBtn').addEventListener('click', confirmCropAndUpload);
+                document.getElementById('cancelCropBtn').addEventListener('click', () => {
+                    document.getElementById('cropperModal').style.display = 'none';
+                    if (cropper) cropper.destroy();
+                    cropper = null;
+                    pendingUploadFile = null;
+                });
+                document.getElementById('confirmCropBtn').addEventListener('touchstart', (e) => { e.preventDefault(); confirmCropAndUpload(); });
+                
+                document.getElementById('testGithubBtn').addEventListener('click', testGithubConnection);
+                document.getElementById('saveGithubConfigBtn').addEventListener('click', saveGithubConfig);
+                document.getElementById('copyGithubUrlBtn').addEventListener('click', copyGithubUrl);
+                document.getElementById('setGithubAvatarBtn').addEventListener('click', setGithubAvatar);
+                document.getElementById('photoInput').addEventListener('change', handleFileSelect);
+                
+                // 搜索
+                document.getElementById('memberSearchTab').addEventListener('click', () => {
+                    document.getElementById('memberSearchTab').classList.add('active');
+                    document.getElementById('generationSearchTab').classList.remove('active');
+                    document.getElementById('memberSearchPanel').classList.remove('hidden');
+                    document.getElementById('generationSearchPanel').classList.add('hidden');
+                    currentSearchMode = 'member';
+                });
+                document.getElementById('generationSearchTab').addEventListener('click', () => {
+                    document.getElementById('generationSearchTab').classList.add('active');
+                    document.getElementById('memberSearchTab').classList.remove('active');
+                    document.getElementById('generationSearchPanel').classList.remove('hidden');
+                    document.getElementById('memberSearchPanel').classList.add('hidden');
+                    currentSearchMode = 'generation';
+                    updateGenerationSelector();
+                });
+                document.getElementById('memberSearchBtn').addEventListener('click', () => {
+                    searchMember(document.getElementById('memberSearchInput').value.trim());
+                });
+                document.getElementById('memberSearchInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') searchMember(e.target.value.trim());
+                });
+                document.getElementById('clearMemberSearchBtn').addEventListener('click', clearSearch);
+                document.getElementById('generationSearchBtn').addEventListener('click', () => {
+                    const gen = document.getElementById('generationSelect').value;
+                    if (gen) showGenerationMembers(gen);
+                });
+                document.getElementById('clearGenerationSearchBtn').addEventListener('click', () => {
+                    document.getElementById('generationSelect').value = '';
+                    document.getElementById('generationResults').classList.remove('show');
+                });
+                
+                // 备份
+                document.getElementById('backupBtn').addEventListener('click', showBackupOptions);
+                document.getElementById('ucBackupOption').addEventListener('click', () => { backupToUCCloud(); hideBackupOptions(); });
+                document.getElementById('localBackupOption').addEventListener('click', () => { backupToLocal(); hideBackupOptions(); });
+                document.getElementById('cancelBackupBtn').addEventListener('click', hideBackupOptions);
+                document.getElementById('backupModal').addEventListener('click', (e) => { if (e.target === document.getElementById('backupModal')) hideBackupOptions(); });
+                document.getElementById('backupFileInput').addEventListener('change', (e) => {
+                    if (e.target.files.length) restoreFromFile(e.target.files[0]);
+                    e.target.value = '';
+                });
+                
+                // 日志
+                document.getElementById('viewLogBtn').addEventListener('click', () => {
+                    modificationLog.renderLogs();
+                    document.getElementById('logModal').style.display = 'flex';
+                });
+                document.getElementById('closeLogBtn').addEventListener('click', () => {
+                    document.getElementById('logModal').style.display = 'none';
+                });
+                document.getElementById('closeLogBottomBtn').addEventListener('click', () => {
+                    document.getElementById('logModal').style.display = 'none';
+                });
+                document.getElementById('clearLogBtn').addEventListener('click', () => {
+                    if (currentUserRole !== 'admin') { alert('只有管理员可以清空日志'); return; }
+                    if (confirm('确定要清空所有修改日志吗？')) { modificationLog.clearLogs(); modificationLog.renderLogs(); }
+                });
+                document.getElementById('logModal').addEventListener('click', (e) => { if (e.target === document.getElementById('logModal')) hideLogModal(); });
+                
+                // 自动保存
+                document.getElementById('autoSaveToggle').addEventListener('click', toggleAutoSave);
+                document.getElementById('manualSaveBtn').addEventListener('click', manualSave);
+                
+                // 状态切换事件
+                document.getElementById('statusAlive').addEventListener('change', function() {
+                    if (this.checked) { 
+                        document.getElementById('deathDateGroup').style.display = 'none'; 
+                        document.getElementById('editDeathDate').value = ''; 
+                    }
+                    updateAge();
+                });
+                document.getElementById('statusDeceased').addEventListener('change', function() {
+                    if (this.checked) document.getElementById('deathDateGroup').style.display = 'block';
+                    updateAge();
+                });
+                document.getElementById('editBirthDate').addEventListener('change', updateAge);
+                document.getElementById('editDeathDate').addEventListener('change', updateAge);
+                
+                // 点击外部取消选中
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.node-row')) {
+                        document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected', 'current-user'));
+                    }
+                });
+                
+                startAutoSaveTimer();
+                window.addEventListener('beforeunload', () => saveToLocal(false));
+                
+                loadGithubConfig();
+                renderTree();
             });
 
-            window.expandAll = expandAll;
-            window.collapseAll = collapseAll;
-            window.addRootMember = addRootMember;
+            // 辅助函数
+            function collectAllMemberIds(node) {
+                let ids = [];
+                if (!node || !node.members) return ids;
+                for (const m of node.members) {
+                    ids.push(m.id);
+                    if (m.children) ids = ids.concat(collectAllMemberIds({ members: m.children }));
+                }
+                return ids;
+            }
+
+            function updateAge() {
+                const b = document.getElementById('editBirthDate').value;
+                const d = document.getElementById('statusDeceased').checked ? document.getElementById('editDeathDate').value : null;
+                document.getElementById('editAge').value = b ? calculateAge(b, d) : '';
+            }
+
+            function hideLogModal() {
+                document.getElementById('logModal').style.display = 'none';
+            }
         })();
     </script>
 </body>
