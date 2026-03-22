@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-03-22T10:34:45.379Z",
+  "timestamp": "2026-03-22T12:20:37.714Z",
   "data": {
     "id": "root",
     "name": "家族",
@@ -2238,7 +2238,7 @@
                             "birth": "",
                             "rank": "1",
                             "bio": "",
-                            "avatar": "https://cdn.jsdelivr.net/gh/huangxiyang305/family-photos@main/family/202603/1773582228444_uhkr8rk3.png",
+                            "avatar": "https://cdn.jsdelivr.net/gh/huangxiyang305/family-photos@main/family/202603/1774178428682_83kkeg72.jpg",
                             "living": "alive",
                             "spouses": [
                               {
@@ -2262,8 +2262,7 @@
                                 "avatar": "",
                                 "living": "alive",
                                 "spouses": [],
-                                "children": [],
-                                "death": ""
+                                "children": []
                               },
                               {
                                 "id": "m_1771409217228_wl8k",
@@ -2884,8 +2883,7 @@
                     "avatar": "",
                     "living": "deceased",
                     "spouses": [],
-                    "children": [],
-                    "death": ""
+                    "children": []
                   },
                   {
                     "id": "m_1771383807332_1z51",
@@ -4319,7 +4317,250 @@
         "living": "deceased"
       }
     ],
-    "timestamp": "2026-03-22T10:34:45.379Z"
+    "timestamp": "2026-03-22T12:20:37.714Z",
+    "logs": [
+      {
+        "id": "1772974790186_2vxhpqk7",
+        "timestamp": "2026-03-08T12:59:50.223Z",
+        "user": "admin",
+        "action": "导出HTML",
+        "details": "管理员 admin 导出了包含最新数据的HTML文件",
+        "snapshotId": "1772974790186_2vxhpqk7"
+      },
+      {
+        "id": "1772974735313_lu4s2r0n",
+        "timestamp": "2026-03-08T12:58:55.359Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772974735313_lu4s2r0n"
+      },
+      {
+        "id": "1772974696599_gamqpnpp",
+        "timestamp": "2026-03-08T12:58:16.651Z",
+        "user": "admin",
+        "action": "登录",
+        "details": "管理员 admin 登录了家谱",
+        "snapshotId": "1772974696599_gamqpnpp"
+      },
+      {
+        "id": "1772974683564_80m194ml",
+        "timestamp": "2026-03-08T12:58:03.633Z",
+        "user": "黄喜阳",
+        "action": "登出",
+        "details": "普通成员 黄喜阳 退出了家谱",
+        "snapshotId": "1772974683564_80m194ml"
+      },
+      {
+        "id": "1772974513660_dhzhys5a",
+        "timestamp": "2026-03-08T12:55:13.674Z",
+        "user": "黄喜阳",
+        "action": "登录",
+        "details": "普通成员 黄喜阳 登录了家谱",
+        "snapshotId": "1772974513660_dhzhys5a"
+      },
+      {
+        "id": "1772974156804_1cu970hz",
+        "timestamp": "2026-03-08T12:49:16.806Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772974156804_1cu970hz"
+      },
+      {
+        "id": "1772973935423_xit253kj",
+        "timestamp": "2026-03-08T12:45:35.424Z",
+        "user": "admin",
+        "action": "导出HTML",
+        "details": "管理员 admin 导出了包含最新数据的HTML文件",
+        "snapshotId": "1772973935423_xit253kj"
+      },
+      {
+        "id": "1772973931502_w03a0rd6",
+        "timestamp": "2026-03-08T12:45:31.502Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772973931502_w03a0rd6"
+      },
+      {
+        "id": "1772973721473_lxe3ggtc",
+        "timestamp": "2026-03-08T12:42:01.474Z",
+        "user": "admin",
+        "action": "导出HTML",
+        "details": "管理员 admin 导出了包含最新数据的HTML文件",
+        "snapshotId": "1772973721473_lxe3ggtc"
+      },
+      {
+        "id": "1772973571240_lo1c6h9o",
+        "timestamp": "2026-03-08T12:39:31.241Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772973571240_lo1c6h9o"
+      },
+      {
+        "id": "1772973495040_wvz56ut6",
+        "timestamp": "2026-03-08T12:38:15.041Z",
+        "user": "admin",
+        "action": "恢复数据",
+        "details": "管理员 admin 从备份文件恢复了家谱数据",
+        "snapshotId": "1772973495040_wvz56ut6"
+      },
+      {
+        "id": "1772964312882_qr8b1kz0",
+        "timestamp": "2026-03-08T10:05:12.884Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772964312882_qr8b1kz0"
+      },
+      {
+        "id": "1772964285398_e4d2kpf7",
+        "timestamp": "2026-03-08T10:04:45.400Z",
+        "user": "admin",
+        "action": "修改子女",
+        "details": "管理员 admin 将成员 \"黄庆祖\" 的子女 \"黄蔓蓉\" 改名为 \"黄曼蓉\"",
+        "snapshotId": "1772964285398_e4d2kpf7"
+      },
+      {
+        "id": "1772964285387_l11gz7ag",
+        "timestamp": "2026-03-08T10:04:45.388Z",
+        "user": "admin",
+        "action": "修改配偶",
+        "details": "管理员 admin 将成员 \"黄庆祖\" 的配偶 \"黄雪莉\" 改名为 \"黄雪梨\"",
+        "snapshotId": "1772964285387_l11gz7ag"
+      },
+      {
+        "id": "1772964220093_mf9ctwjg",
+        "timestamp": "2026-03-08T10:03:40.094Z",
+        "user": "admin",
+        "action": "修改子女",
+        "details": "管理员 admin 将成员 \"黄卫新\" 的子女 \"黄承虎\" 改名为 \"黄承明\"",
+        "snapshotId": "1772964220093_mf9ctwjg"
+      },
+      {
+        "id": "1772964185270_ywdkhnyv",
+        "timestamp": "2026-03-08T10:03:05.272Z",
+        "user": "admin",
+        "action": "恢复数据",
+        "details": "管理员 admin 从备份文件恢复了家谱数据",
+        "snapshotId": "1772964185270_ywdkhnyv"
+      },
+      {
+        "id": "1772625815675_q803k9dd",
+        "timestamp": "2026-03-04T12:03:35.677Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772625815675_q803k9dd"
+      },
+      {
+        "id": "1772625812258_1mleb72j",
+        "timestamp": "2026-03-04T12:03:32.259Z",
+        "user": "admin",
+        "action": "修改子女状态",
+        "details": "管理员 admin 将成员 \"黄高望\" 的子女 \"黄昭栋\" 的状态从 已故 改为 在世",
+        "snapshotId": "1772625812258_1mleb72j"
+      },
+      {
+        "id": "1772625812238_vab45stm",
+        "timestamp": "2026-03-04T12:03:32.239Z",
+        "user": "admin",
+        "action": "修改信息",
+        "details": "管理员 admin 修改了成员 \"黄高望\" 的信息：去世日期从 \"空\" 改为 \"空\"；状态从 在世 改为 已故",
+        "snapshotId": "1772625812238_vab45stm"
+      },
+      {
+        "id": "1772625800672_lqu97b2t",
+        "timestamp": "2026-03-04T12:03:20.673Z",
+        "user": "admin",
+        "action": "修改模式",
+        "details": "管理员将模式切换为 修改模式",
+        "snapshotId": "1772625800672_lqu97b2t"
+      },
+      {
+        "id": "1772625638381_92f8sz1u",
+        "timestamp": "2026-03-04T12:00:38.382Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772625638381_92f8sz1u"
+      },
+      {
+        "id": "1772625633335_ckqywfdw",
+        "timestamp": "2026-03-04T12:00:33.337Z",
+        "user": "admin",
+        "action": "恢复数据",
+        "details": "管理员 admin 从备份文件恢复了家谱数据",
+        "snapshotId": "1772625633335_ckqywfdw"
+      },
+      {
+        "id": "1772519179347_p8pv67v8",
+        "timestamp": "2026-03-03T06:26:19.347Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772519179347_p8pv67v8"
+      },
+      {
+        "id": "1772519142771_oyxxqf60",
+        "timestamp": "2026-03-03T06:25:42.772Z",
+        "user": "admin",
+        "action": "修改信息",
+        "details": "管理员 admin 修改了成员 \"黄相烜\" 的信息：性别从 女 改为 男；排行从 未设置 改为 未设置；去世日期从 \"空\" 改为 \"空\"；状态从 已故 改为 在世",
+        "snapshotId": "1772519142771_oyxxqf60"
+      },
+      {
+        "id": "1772519089007_dff7q0qs",
+        "timestamp": "2026-03-03T06:24:49.008Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772519089007_dff7q0qs"
+      },
+      {
+        "id": "1772519087594_ft15l68n",
+        "timestamp": "2026-03-03T06:24:47.595Z",
+        "user": "admin",
+        "action": "修改信息",
+        "details": "管理员 admin 修改了成员 \"黄桂花\" 的信息：性别从 男 改为 女；排行从 未设置 改为 未设置；去世日期从 \"空\" 改为 \"空\"；状态从 已故 改为 在世",
+        "snapshotId": "1772519087594_ft15l68n"
+      },
+      {
+        "id": "1772519016873_czoqglmq",
+        "timestamp": "2026-03-03T06:23:36.874Z",
+        "user": "admin",
+        "action": "手动保存",
+        "details": "管理员 admin 手动保存了数据",
+        "snapshotId": "1772519016873_czoqglmq"
+      },
+      {
+        "id": "1772518984523_89iprs1z",
+        "timestamp": "2026-03-03T06:23:04.525Z",
+        "user": "admin",
+        "action": "修改信息",
+        "details": "管理员 admin 修改了成员 \"黄国保\" 的信息：去世日期从 \"空\" 改为 \"空\"",
+        "snapshotId": "1772518984523_89iprs1z"
+      },
+      {
+        "id": "1772518896436_9gv35m59",
+        "timestamp": "2026-03-03T06:21:36.437Z",
+        "user": "admin",
+        "action": "修改信息",
+        "details": "管理员 admin 修改了成员 \"（女4）嫁（宛娟村）\" 的信息：性别从 男 改为 女；去世日期从 \"空\" 改为 \"空\"",
+        "snapshotId": "1772518896436_9gv35m59"
+      },
+      {
+        "id": "1772514558026_rcawawfe",
+        "timestamp": "2026-03-03T05:09:18.027Z",
+        "user": "admin",
+        "action": "修改子女状态",
+        "details": "管理员 admin 将成员 \"黄卫良\" 的子女 \"覃衡\" 的状态从 已故 改为 在世",
+        "snapshotId": "1772514558026_rcawawfe"
+      }
+    ],
+    "snapshots": {}
   },
   "statistics": {
     "memberCount": 189,

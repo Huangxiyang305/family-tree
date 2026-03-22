@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>黄氏家谱 · 无日志版</title>
+    <title>黄氏家谱 · 服务器最新版</title>
     <!-- 引入 Cropper.js 用于头像裁剪 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
@@ -652,7 +652,7 @@
             </div>
         </div>
 
-        <!-- 备份面板（已移除日志按钮） -->
+        <!-- 备份面板 -->
         <div class="backup-panel" id="backupPanel" style="display: none;">
             <h3><span>💾 数据备份与恢复</span><span style="font-size: 0.8rem; color: #64748b;">(仅管理员可用)</span></h3>
             <div class="backup-buttons">
@@ -1937,65 +1937,159 @@
                 finally { btn.disabled = false; btn.textContent = '💾 立即保存'; }
             }
 
+            // ========== 初始化（强制从服务器加载最新数据） ==========
             window.addEventListener('load', async () => {
-                const localData = loadFromLocal();
-                familyData = localData ? localData : getEmbeddedFamilyData();
-                loadGlobalMode();
-                updateGenerationStats(); updateStatistics();
-                await checkAutoLogin();
-                updateGlobalModeUI();
-
-                document.getElementById('memberModeTab').addEventListener('click', switchToMemberMode);
-                document.getElementById('adminModeTab').addEventListener('click', switchToAdminMode);
-                document.getElementById('memberLoginBtn').addEventListener('click', memberLogin);
-                document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
-                document.getElementById('memberName').addEventListener('keypress', (e) => { if (e.key === 'Enter') memberLogin(); });
-                document.getElementById('adminPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') adminLogin(); });
-                document.getElementById('logoutBtn').addEventListener('click', logout);
-                document.getElementById('globalViewModeBtn').addEventListener('click', () => setGlobalMode('view'));
-                document.getElementById('globalEditModeBtn').addEventListener('click', () => setGlobalMode('edit'));
-                document.getElementById('expandAllBtn').addEventListener('click', () => { collectAllMemberIds(familyData).forEach(id => expandedSet.add(id)); renderTree(); });
-                document.getElementById('collapseAllBtn').addEventListener('click', () => { expandedSet.clear(); expandedSet.add('root'); renderTree(); });
-                document.getElementById('addRootBtn').addEventListener('click', addRootMember);
-                document.getElementById('addAncestorBtn').addEventListener('click', addAncestor);
-                document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
-                document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
-                document.getElementById('deleteMemberBtn').addEventListener('click', showDeleteConfirm);
-                document.getElementById('editPanelAddSpouseBtn').addEventListener('click', addSpouseFromEditPanel);
-                document.getElementById('editPanelAddChildBtn').addEventListener('click', addChildFromEditPanel);
-                document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
-                document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-                document.getElementById('deleteConfirmModal').addEventListener('click', (e) => { if (e.target === document.getElementById('deleteConfirmModal')) hideDeleteConfirm(); });
-                document.getElementById('uploadToGithubBtn').addEventListener('click', handleUploadButtonClick);
-                document.getElementById('confirmCropBtn').addEventListener('click', confirmCropAndUpload);
-                document.getElementById('cancelCropBtn').addEventListener('click', () => { document.getElementById('cropperModal').style.display = 'none'; if (cropper) cropper.destroy(); cropper = null; pendingUploadFile = null; });
-                document.getElementById('testGithubBtn').addEventListener('click', testGithubConnection);
-                document.getElementById('saveGithubConfigBtn').addEventListener('click', saveGithubConfig);
-                document.getElementById('copyGithubUrlBtn').addEventListener('click', copyGithubUrl);
-                document.getElementById('setGithubAvatarBtn').addEventListener('click', setGithubAvatar);
-                document.getElementById('photoInput').addEventListener('change', handleFileSelect);
-                document.getElementById('memberSearchTab').addEventListener('click', () => { document.getElementById('memberSearchTab').classList.add('active'); document.getElementById('generationSearchTab').classList.remove('active'); document.getElementById('memberSearchPanel').classList.remove('hidden'); document.getElementById('generationSearchPanel').classList.add('hidden'); });
-                document.getElementById('generationSearchTab').addEventListener('click', () => { document.getElementById('generationSearchTab').classList.add('active'); document.getElementById('memberSearchTab').classList.remove('active'); document.getElementById('generationSearchPanel').classList.remove('hidden'); document.getElementById('memberSearchPanel').classList.add('hidden'); updateGenerationSelector(); });
-                document.getElementById('memberSearchBtn').addEventListener('click', () => { searchMember(document.getElementById('memberSearchInput').value.trim()); });
-                document.getElementById('clearMemberSearchBtn').addEventListener('click', clearSearch);
-                document.getElementById('generationSearchBtn').addEventListener('click', () => { const gen = document.getElementById('generationSelect').value; if (gen) showGenerationMembers(gen); });
-                document.getElementById('clearGenerationSearchBtn').addEventListener('click', () => { document.getElementById('generationSelect').value = ''; document.getElementById('generationResults').classList.remove('show'); });
-                document.getElementById('backupBtn').addEventListener('click', showBackupOptions);
-                document.getElementById('ucBackupOption').addEventListener('click', () => { backupToUCCloud(); hideBackupOptions(); });
-                document.getElementById('localBackupOption').addEventListener('click', () => { backupToLocal(); hideBackupOptions(); });
-                document.getElementById('cancelBackupBtn').addEventListener('click', hideBackupOptions);
-                document.getElementById('backupFileInput').addEventListener('change', (e) => { if (e.target.files.length) restoreFromFile(e.target.files[0]); e.target.value = ''; });
-                document.getElementById('autoSaveToggle').addEventListener('click', toggleAutoSave);
-                document.getElementById('manualSaveBtn').addEventListener('click', manualSave);
-                document.getElementById('statusAlive').addEventListener('change', function() { if (this.checked) { document.getElementById('deathDateGroup').style.display = 'none'; document.getElementById('editDeathDate').value = ''; } updateAge(); });
-                document.getElementById('statusDeceased').addEventListener('change', function() { if (this.checked) document.getElementById('deathDateGroup').style.display = 'block'; updateAge(); });
-                document.getElementById('editBirthDate').addEventListener('change', updateAge);
-                document.getElementById('editDeathDate').addEventListener('change', updateAge);
-                document.addEventListener('click', (e) => { if (!e.target.closest('.node-row')) { document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected')); } });
-                startAutoSaveTimer();
-                window.addEventListener('beforeunload', () => saveToLocal(false));
-                loadGithubConfig();
-                renderTree();
+                try {
+                    console.log('🚀 加载最新家谱数据...');
+                    showSaveToast('📡 正在加载最新家谱数据...', 'info');
+                    
+                    // 尝试从服务器加载 data.json
+                    let loadedFromServer = false;
+                    const possiblePaths = [
+                        `data.json?t=${Date.now()}`,
+                        `./data.json?t=${Date.now()}`,
+                        `/data.json?t=${Date.now()}`
+                    ];
+                    
+                    for (const path of possiblePaths) {
+                        try {
+                            console.log(`尝试加载: ${path}`);
+                            const response = await fetch(path);
+                            if (response.ok) {
+                                const remoteData = await response.json();
+                                // 兼容两种格式
+                                if (remoteData && remoteData.data && remoteData.data.members) {
+                                    familyData = migrateAllDates(remoteData.data);
+                                    loadedFromServer = true;
+                                    console.log('✅ 从服务器加载备份格式数据成功');
+                                    showSaveToast('📢 已加载最新家谱数据', 'info');
+                                    break;
+                                } else if (remoteData && remoteData.members) {
+                                    familyData = migrateAllDates(remoteData);
+                                    loadedFromServer = true;
+                                    console.log('✅ 从服务器加载家谱格式数据成功');
+                                    showSaveToast('📢 已加载最新家谱数据', 'info');
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            console.log(`加载 ${path} 失败:`, e.message);
+                            continue;
+                        }
+                    }
+                    
+                    // 如果服务器加载失败，使用本地缓存作为备用
+                    if (!loadedFromServer) {
+                        console.log('⚠️ 无法从服务器加载数据，尝试使用本地缓存');
+                        const localData = loadFromLocal();
+                        if (localData) {
+                            familyData = localData;
+                            showSaveToast('💾 使用本地缓存数据（服务器不可用）', 'warning');
+                        } else {
+                            familyData = getEmbeddedFamilyData();
+                            showSaveToast('📦 使用默认示例数据', 'info');
+                        }
+                    } else {
+                        // 将服务器数据保存到本地缓存，供下次离线使用
+                        saveToLocal(false);
+                    }
+                    
+                    // 加载全局模式
+                    loadGlobalMode();
+                    
+                    // 更新界面
+                    updateGenerationStats();
+                    updateStatistics();
+                    
+                    // 检查自动登录
+                    await checkAutoLogin();
+                    
+                    // 绑定事件
+                    document.getElementById('memberModeTab').addEventListener('click', switchToMemberMode);
+                    document.getElementById('adminModeTab').addEventListener('click', switchToAdminMode);
+                    document.getElementById('memberLoginBtn').addEventListener('click', memberLogin);
+                    document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+                    document.getElementById('memberName').addEventListener('keypress', (e) => { if (e.key === 'Enter') memberLogin(); });
+                    document.getElementById('adminPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') adminLogin(); });
+                    document.getElementById('logoutBtn').addEventListener('click', logout);
+                    document.getElementById('globalViewModeBtn').addEventListener('click', () => setGlobalMode('view'));
+                    document.getElementById('globalEditModeBtn').addEventListener('click', () => setGlobalMode('edit'));
+                    document.getElementById('expandAllBtn').addEventListener('click', () => { collectAllMemberIds(familyData).forEach(id => expandedSet.add(id)); renderTree(); });
+                    document.getElementById('collapseAllBtn').addEventListener('click', () => { expandedSet.clear(); expandedSet.add('root'); renderTree(); });
+                    document.getElementById('addRootBtn').addEventListener('click', addRootMember);
+                    document.getElementById('addAncestorBtn').addEventListener('click', addAncestor);
+                    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+                    document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+                    document.getElementById('deleteMemberBtn').addEventListener('click', showDeleteConfirm);
+                    document.getElementById('editPanelAddSpouseBtn').addEventListener('click', addSpouseFromEditPanel);
+                    document.getElementById('editPanelAddChildBtn').addEventListener('click', addChildFromEditPanel);
+                    document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
+                    document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+                    document.getElementById('deleteConfirmModal').addEventListener('click', (e) => { if (e.target === document.getElementById('deleteConfirmModal')) hideDeleteConfirm(); });
+                    
+                    // 上传相关
+                    document.getElementById('uploadToGithubBtn').addEventListener('click', handleUploadButtonClick);
+                    document.getElementById('confirmCropBtn').addEventListener('click', confirmCropAndUpload);
+                    document.getElementById('cancelCropBtn').addEventListener('click', () => { document.getElementById('cropperModal').style.display = 'none'; if (cropper) cropper.destroy(); cropper = null; pendingUploadFile = null; });
+                    document.getElementById('testGithubBtn').addEventListener('click', testGithubConnection);
+                    document.getElementById('saveGithubConfigBtn').addEventListener('click', saveGithubConfig);
+                    document.getElementById('copyGithubUrlBtn').addEventListener('click', copyGithubUrl);
+                    document.getElementById('setGithubAvatarBtn').addEventListener('click', setGithubAvatar);
+                    document.getElementById('photoInput').addEventListener('change', handleFileSelect);
+                    
+                    // 搜索
+                    document.getElementById('memberSearchTab').addEventListener('click', () => {
+                        document.getElementById('memberSearchTab').classList.add('active');
+                        document.getElementById('generationSearchTab').classList.remove('active');
+                        document.getElementById('memberSearchPanel').classList.remove('hidden');
+                        document.getElementById('generationSearchPanel').classList.add('hidden');
+                    });
+                    document.getElementById('generationSearchTab').addEventListener('click', () => {
+                        document.getElementById('generationSearchTab').classList.add('active');
+                        document.getElementById('memberSearchTab').classList.remove('active');
+                        document.getElementById('generationSearchPanel').classList.remove('hidden');
+                        document.getElementById('memberSearchPanel').classList.add('hidden');
+                        updateGenerationSelector();
+                    });
+                    document.getElementById('memberSearchBtn').addEventListener('click', () => { searchMember(document.getElementById('memberSearchInput').value.trim()); });
+                    document.getElementById('clearMemberSearchBtn').addEventListener('click', clearSearch);
+                    document.getElementById('generationSearchBtn').addEventListener('click', () => { const gen = document.getElementById('generationSelect').value; if (gen) showGenerationMembers(gen); });
+                    document.getElementById('clearGenerationSearchBtn').addEventListener('click', () => { document.getElementById('generationSelect').value = ''; document.getElementById('generationResults').classList.remove('show'); });
+                    
+                    // 备份
+                    document.getElementById('backupBtn').addEventListener('click', showBackupOptions);
+                    document.getElementById('ucBackupOption').addEventListener('click', () => { backupToUCCloud(); hideBackupOptions(); });
+                    document.getElementById('localBackupOption').addEventListener('click', () => { backupToLocal(); hideBackupOptions(); });
+                    document.getElementById('cancelBackupBtn').addEventListener('click', hideBackupOptions);
+                    document.getElementById('backupFileInput').addEventListener('change', (e) => { if (e.target.files.length) restoreFromFile(e.target.files[0]); e.target.value = ''; });
+                    
+                    // 自动保存
+                    document.getElementById('autoSaveToggle').addEventListener('click', toggleAutoSave);
+                    document.getElementById('manualSaveBtn').addEventListener('click', manualSave);
+                    
+                    // 状态切换
+                    document.getElementById('statusAlive').addEventListener('change', function() { if (this.checked) { document.getElementById('deathDateGroup').style.display = 'none'; document.getElementById('editDeathDate').value = ''; } updateAge(); });
+                    document.getElementById('statusDeceased').addEventListener('change', function() { if (this.checked) document.getElementById('deathDateGroup').style.display = 'block'; updateAge(); });
+                    document.getElementById('editBirthDate').addEventListener('change', updateAge);
+                    document.getElementById('editDeathDate').addEventListener('change', updateAge);
+                    
+                    // 点击外部取消选中
+                    document.addEventListener('click', (e) => { if (!e.target.closest('.node-row')) { document.querySelectorAll('.node-row').forEach(el => el.classList.remove('selected')); } });
+                    
+                    startAutoSaveTimer();
+                    window.addEventListener('beforeunload', () => saveToLocal(false));
+                    
+                    loadGithubConfig();
+                    renderTree();
+                    
+                    console.log('🎉 家谱初始化完成');
+                } catch (error) {
+                    console.error('❌ 初始化失败', error);
+                    alert('初始化失败：' + error.message);
+                    // 回退到默认数据
+                    familyData = getEmbeddedFamilyData();
+                    renderTree();
+                }
             });
         })();
     </script>
