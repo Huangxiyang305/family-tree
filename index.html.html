@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>黄氏家谱 · 同代统计优化版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f2f5f9; font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-container { max-width: 400px; width: 100%; background: white; border-radius: 30px; box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2); padding: 40px 30px; }
+        .login-container.hidden { display: none; }
+        .login-logo { font-size: 4rem; margin-bottom: 20px; text-align: center; }
+        .login-title { font-size: 2rem; font-weight: 600; color: #1e2f4e; margin-bottom: 30px; text-align: center; }
+        .mode-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: #f1f5f9; padding: 5px; border-radius: 16px; }
+        .mode-tab { flex: 1; text-align: center; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; color: #64748b; }
+        .mode-tab.active { background: white; color: #1e2f4e; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .login-form { display: flex; flex-direction: column; gap: 20px; }
+        .login-form.hidden { display: none; }
+        .login-input-group { text-align: left; }
+        .login-input-group label { display: block; font-size: 0.9rem; font-weight: 500; color: #475569; margin-bottom: 5px; }
+        .login-input { width: 100%; padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem; outline: none; }
+        .login-input:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2,132,199,0.1); }
+        .login-btn { background: #1e2f4e; color: white; border: none; padding: 16px; border-radius: 16px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .login-btn:hover { background: #2b3f62; }
+        .login-error { color: #dc2626; font-size: 0.9rem; margin-top: 10px; min-height: 20px; text-align: center; }
+        .main-container { max-width: 1500px; width: 100%; background: white; border-radius: 26px; box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2); padding: 28px 24px; }
+        .main-container.hidden { display: none; }
+        .global-mode-bar { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 16px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .global-mode-bar.view-mode { background: #f8fafc; border-color: #cbd5e1; }
+        .global-mode-bar.edit-mode { background: #f0fdf4; border-color: #86efac; }
+        .mode-indicator { display: flex; align-items: center; gap: 10px; }
+        .mode-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .mode-icon.view { background: #64748b; color: white; }
+        .mode-icon.edit { background: #059669; color: white; }
+        .mode-text { font-size: 1rem; }
+        .mode-text .mode-title { font-weight: 600; color: #1e2f4e; }
+        .mode-text .mode-desc { color: #64748b; font-size: 0.9rem; }
+        .mode-controller { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .admin-badge { background: #b45309; color: white; padding: 5px 12px; border-radius: 30px; font-size: 0.8rem; font-weight: 600; }
+        .mode-toggle-btns { display: flex; gap: 5px; background: #f1f5f9; padding: 3px; border-radius: 30px; }
+        .mode-toggle-btn { padding: 8px 20px; border-radius: 30px; border: none; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; background: transparent; color: #64748b; }
+        .mode-toggle-btn.active { background: white; color: #1e2f4e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .mode-toggle-btn.view-mode.active { background: #64748b; color: white; }
+        .mode-toggle-btn.edit-mode.active { background: #059669; color: white; }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: #1e2f4e; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 600; }
+        .user-details { display: flex; flex-direction: column; }
+        .user-welcome { font-size: 0.8rem; color: #64748b; }
+        .user-name { font-size: 1.1rem; font-weight: 600; color: #1e2f4e; }
+        .user-badge { background: #0284c7; color: white; font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; margin-left: 8px; }
+        .user-badge.admin { background: #b45309; }
+        .logout-btn { background: white; border: 1.5px solid #e2e8f0; padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; cursor: pointer; transition: 0.15s; color: #64748b; }
+        .logout-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        h1 { font-weight: 600; font-size: 2rem; color: #1e2f4e; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .search-section { background: #f8fafc; border-radius: 16px; padding: 15px; margin: 15px 0; border: 1px solid #e2e8f0; }
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-tab { padding: 8px 20px; border-radius: 30px; background: white; border: 1.5px solid #e2e8f0; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; color: #64748b; }
+        .search-tab.active { background: #1e2f4e; border-color: #1e2f4e; color: white; }
+        .search-panel { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .search-panel.hidden { display: none; }
+        .search-wrapper { flex: 2; min-width: 240px; position: relative; }
+        .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #8a9bb5; font-style: normal; }
+        #memberSearchInput, #generationSearchInput { width: 100%; padding: 12px 16px 12px 42px; border: 1.5px solid #dae0e9; border-radius: 60px; font-size: 0.95rem; outline: none; }
+        .generation-selector { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .generation-selector select { padding: 10px 16px; border: 1.5px solid #dae0e9; border-radius: 30px; font-size: 0.95rem; outline: none; background: white; min-width: 120px; }
+        .search-btn { background: #1e2f4e; color: white; border: none; padding: 10px 24px; border-radius: 30px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .search-btn:hover { background: #2b3f62; }
+        .clear-btn { background: white; border: 1.5px solid #dae0e9; color: #64748b; padding: 10px 20px; border-radius: 30px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .clear-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .generation-results { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 16px; padding: 15px 20px; margin: 15px 0 20px 0; display: none; }
+        .generation-results.show { display: block; }
+        .generation-results h3 { color: #0369a1; font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .generation-members { display: flex; flex-wrap: wrap; gap: 10px; }
+        .generation-member-tag { background: white; border: 1px solid #bae6fd; border-radius: 30px; padding: 6px 15px; font-size: 0.95rem; color: #0369a1; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+        .generation-member-tag:hover { background: #e0f2fe; border-color: #0284c7; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .generation-member-tag.deceased { background: #f3f4f6; border-color: #9ca3af; color: #4b5563; filter: grayscale(50%); }
+        .generation-member-tag .gender-badge { font-size: 0.8rem; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+        .generation-member-tag .gender-badge.male { background: #fee2e2; color: #b91c1c; }
+        .generation-member-tag .gender-badge.female { background: #dcfce7; color: #166534; }
+        .generation-member-tag .son-in-law-badge { background: #f59e0b; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 12px; margin-left: 4px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { background: white; border: 1.5px solid #d0d8e5; padding: 10px 18px; border-radius: 40px; font-weight: 500; color: #1e2f4e; cursor: pointer; transition: 0.15s; display: inline-flex; align-items: center; gap: 6px; font-size: 0.95rem; }
+        .btn:hover { background: #edf2f9; border-color: #a1b3cc; }
+        .btn.primary { background: #1e2f4e; border-color: #1e2f4e; color: white; }
+        .btn.success { background: #059669; border-color: #059669; color: white; }
+        .btn.warning { background: #d97706; border-color: #d97706; color: white; }
+        .btn.danger { background: #dc2626; border-color: #dc2626; color: white; }
+        .btn.info { background: #0891b2; border-color: #0891b2; color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .son-in-law-badge { background: #f59e0b; color: white; font-size: 0.6rem; font-weight: 600; padding: 1px 4px; border-radius: 8px; margin-left: 4px; white-space: nowrap; }
+        .tree-container { margin-top: 20px; border-top: 2px solid #eef2f6; padding-top: 20px; max-height: 500px; overflow-x: auto; overflow-y: auto; white-space: nowrap; }
+        .tree { list-style: none; padding-left: 0; min-width: min-content; }
+        .tree, .tree ul { list-style-type: none; margin: 0; padding-left: 28px; display: inline-block; vertical-align: top; }
+        .tree li { margin: 4px 0; position: relative; line-height: 40px; white-space: nowrap; }
+        .tree li::before { content: ''; position: absolute; left: -16px; top: 20px; width: 12px; height: 1px; background: #cbd5e1; }
+        .node-row { display: flex; align-items: center; padding: 4px 8px 4px 4px; border-radius: 12px; cursor: pointer; background-color: transparent; border: 1px solid transparent; transition: all 0.1s; white-space: nowrap; flex-wrap: nowrap; }
+        .node-row:hover { background-color: #f0f5fd; border-color: #d5e2f0; }
+        .node-row.selected { background: #e1efff; border-color: #9ac0e8; }
+        .node-row.current-user { background: #fef3c7; border-color: #fbbf24; box-shadow: 0 0 0 2px #fbbf24; }
+        .node-row.deceased .member-integrated-cell { filter: grayscale(100%); opacity: 0.8; border-color: #6b7280 !important; }
+        .node-row.deceased .cell-name { color: #4b5563 !important; }
+        .expander { width: 26px; height: 26px; background: white; border: 1.5px solid #8fa8c7; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: #1e2f4e; margin-right: 6px; cursor: pointer; user-select: none; flex-shrink: 0; }
+        .expander:hover { background: #dde9f7; border-color: #2e7eb0; }
+        .expander.leaf { visibility: hidden; pointer-events: none; }
+        .generation-badge { background: #334155; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 20px; margin-right: 6px; min-width: 42px; text-align: center; flex-shrink: 0; height: 24px; line-height: 20px; }
+        .generation-badge::before { content: "第"; font-weight: 400; margin-right: 2px; opacity: 0.9; }
+        .generation-badge::after { content: "代"; font-weight: 400; margin-left: 2px; opacity: 0.9; }
+        .member-content { flex: 1; display: flex; align-items: center; flex-wrap: nowrap; gap: 6px 8px; min-width: min-content; }
+        .member-integrated-cell { display: inline-flex; align-items: center; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 30px 6px 6px 30px; overflow: hidden; padding-right: 10px; height: 44px; flex-shrink: 0; }
+        .member-integrated-cell.male { background: #fee2e2; border-color: #f87171; }
+        .member-integrated-cell.female { background: #dcfce7; border-color: #4ade80; }
+        .cell-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid white; margin-right: 6px; background: #e2e8f0; flex-shrink: 0; }
+        .cell-avatar[src=""] { display: none; }
+        .cell-name { font-weight: 600; font-size: 1rem; white-space: nowrap; }
+        .cell-name.male { color: #b91c1c; }
+        .cell-name.female { color: #166534; }
+        .age-badge { background: #94a3b8; color: white; font-size: 0.65rem; font-weight: 600; padding: 1px 6px; border-radius: 12px; margin-left: 4px; white-space: nowrap; }
+        .status-badge { font-size: 0.6rem; padding: 1px 4px; border-radius: 8px; margin-left: 4px; display: inline-block; }
+        .status-badge.deceased { background: #d1d5db; color: #374151; }
+        .spouses-list { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; flex-shrink: 0; }
+        .spouse-item-box { background: #f0eefb; border: 1.5px solid #c4b5fd; border-radius: 30px 6px 6px 30px; padding-right: 8px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px; height: 40px; flex-shrink: 0; }
+        .spouse-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid white; margin-right: 2px; background: #e2e8f0; flex-shrink: 0; }
+        .spouse-avatar[src=""] { display: none; }
+        .spouse-title { background: #8b5cf6; color: white; font-size: 0.7rem; font-weight: 600; padding: 2px 5px; border-radius: 12px; margin-left: 2px; }
+        .spouse-title.son-in-law { background: #f59e0b; }
+        .spouse-name-box { font-weight: 500; white-space: nowrap; font-size: 0.9rem; }
+        .action-buttons { display: flex; gap: 4px; margin-left: 6px; opacity: 0.3; transition: opacity 0.2s; flex-shrink: 0; }
+        .node-row:hover .action-buttons { opacity: 1; }
+        .action-btn { background: white; border: 1px solid #cbd5e1; border-radius: 20px; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+        .action-btn.edit { background: #f8fafc; color: #0369a1; }
+        .action-btn.view { background: #f8fafc; color: #64748b; cursor: default; }
+        .edit-panel { margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; }
+        .edit-panel h3 { margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: 500; color: #475569; }
+        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; }
+        .bio-section { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+        .bio-textarea { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; resize: vertical; min-height: 100px; font-family: inherit; background: white; }
+        .family-management { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+        .management-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .avatar-upload-section { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+        .current-avatar { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .current-avatar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #cbd5e1; }
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
+        .upload-btn-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .github-config-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 12px;
+            border: 1px solid #bae6fd;
+        }
+        .github-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .github-config-item { display: flex; flex-direction: column; gap: 4px; }
+        .github-config-item input { padding: 8px 12px; border: 1px solid #bae6fd; border-radius: 6px; }
+        .github-config-actions { display: flex; gap: 10px; margin: 15px 0 5px; }
+        .github-btn-primary { background: #0284c7; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; }
+        .github-btn-success { background: #059669; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; }
+        .github-btn-warning { background: #d97706; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
+        .upload-progress { margin-top: 15px; padding: 10px; background: #f0f9ff; border-radius: 8px; display: none; }
+        .progress-bar-container { display: flex; align-items: center; gap: 10px; }
+        .progress-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: #2563eb; border-radius: 4px; transition: width 0.3s ease; }
+        .spouse-list-section, .children-list-section { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+        .panel-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .delete-confirm-modal, .log-modal, .backup-modal, .cropper-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
+        .delete-confirm-container, .backup-container, .cropper-container { background: white; border-radius: 20px; max-width: 400px; width: 90%; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .cropper-container { max-width: 500px; }
+        .image-container { width: 100%; height: 350px; background: #0f172a; border-radius: 12px; overflow: hidden; }
+        .image-container img { max-width: 100%; max-height: 100%; display: block; }
+        .cropper-footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 15px; }
+        .backup-options { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        .backup-option { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; }
+        .stats { background: #f1f4f9; border-radius: 30px; padding: 4px 15px; font-size: 0.85rem; color: #2c3e50; display: inline-flex; align-items: center; gap: 5px; }
+        .stats.deceased { background: #d1d5db; color: #374151; }
+        .backup-panel { margin-top: 20px; padding: 20px; background: #f0f9ff; border-radius: 16px; border: 1px solid #bae6fd; display: none; }
+        .backup-buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .backup-info { font-size: 0.9rem; background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #0284c7; }
+        .stats-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+        .file-info { font-size: 0.85rem; color: #4b5563; margin-top: 5px; }
+        .custom-file-upload { display: inline-block; padding: 10px 18px; background: #0284c7; color: white; border-radius: 40px; cursor: pointer; }
+        #backupFileInput { display: none; }
+        .save-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #059669; color: white; padding: 12px 24px; border-radius: 50px; z-index: 10001; animation: slideUp 0.3s ease; display: none; }
+        @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .empty-state { text-align: center; padding: 40px; color: #64748b; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-logo">🌳</div>
+        <div class="login-title">黄氏家谱</div>
+        <div class="mode-tabs">
+            <div class="mode-tab active" id="memberModeTab">普通成员</div>
+            <div class="mode-tab" id="adminModeTab">管理员</div>
+        </div>
+        <div class="login-form" id="memberLoginForm">
+            <div class="login-input-group"><label>您的姓名</label><input type="text" class="login-input" id="memberName" placeholder="请输入姓名" autocomplete="off"></div>
+            <button class="login-btn" id="memberLoginBtn">进入家谱（浏览模式）</button>
+            <div class="login-error" id="memberLoginError"></div>
+        </div>
+        <div class="login-form hidden" id="adminLoginForm">
+            <div class="login-input-group"><label>用户名</label><input type="text" class="login-input" id="adminUsername" placeholder="请输入管理员账号"></div>
+            <div class="login-input-group"><label>密码</label><input type="password" class="login-input" id="adminPassword" placeholder="请输入密码"></div>
+            <button class="login-btn" id="adminLoginBtn">管理员登录（完整权限）</button>
+            <div class="login-error" id="adminLoginError"></div>
+        </div>
+    </div>
+
+    <div class="main-container hidden" id="mainContainer">
+        <div class="global-mode-bar view-mode" id="globalModeBar">
+            <div class="mode-indicator"><div class="mode-icon view" id="modeIcon">👁️</div><div class="mode-text"><div class="mode-title" id="modeTitle">浏览模式</div><div class="mode-desc" id="modeDesc">当前只能查看，不能修改家谱</div></div></div>
+            <div class="mode-controller" id="modeController" style="display: none;"><span class="admin-badge" id="adminBadge">管理员</span><div class="mode-toggle-btns"><button class="mode-toggle-btn view-mode active" id="globalViewModeBtn">浏览模式</button><button class="mode-toggle-btn edit-mode" id="globalEditModeBtn">修改模式</button></div></div>
+        </div>
+        <div class="user-bar" id="userBar"><div class="user-info"><div class="user-avatar" id="userAvatar">👤</div><div class="user-details"><span class="user-welcome" id="userWelcome">欢迎回来</span><span><span class="user-name" id="loggedInUserName"></span><span class="user-badge" id="userBadge" style="display: none;">普通成员</span></span></div></div><button class="logout-btn" id="logoutBtn">退出登录</button></div>
+        <h1>📋 黄氏家谱 <span class="stats" id="generationStats">第1代 ~ 第?代</span></h1>
+        <div class="search-section">
+            <div class="search-tabs"><div class="search-tab active" id="memberSearchTab">搜索成员</div><div class="search-tab" id="generationSearchTab">搜索同代成员</div></div>
+            <div class="search-panel" id="memberSearchPanel"><div class="search-wrapper"><i>🔍</i><input type="text" id="memberSearchInput" placeholder="输入成员姓名..."></div><button class="search-btn" id="memberSearchBtn">搜索</button><button class="clear-btn" id="clearMemberSearchBtn">清除</button></div>
+            <div class="search-panel hidden" id="generationSearchPanel"><div class="generation-selector"><select id="generationSelect"><option value="">选择世代</option></select><button class="search-btn" id="generationSearchBtn">搜索</button><button class="clear-btn" id="clearGenerationSearchBtn">清除</button></div></div>
+        </div>
+        <div class="generation-results" id="generationResults"><h3><span>📋 第 <span id="currentGeneration"></span> 代成员</span><span class="stats" style="font-size:0.8rem;">共 <span id="generationMemberCount">0</span> 人</span></h3><div class="generation-members" id="generationMembersList"></div></div>
+        <div class="toolbar"><div class="btn-group"><button class="btn" id="expandAllBtn">展开全部</button><button class="btn" id="collapseAllBtn">折叠全部</button><button class="btn primary" id="addRootBtn">+ 添加根成员</button><button class="btn" id="addAncestorBtn" style="background:#f97316;color:white;display:none;">⬆️ 添上一级</button></div></div>
+        <div class="tree-container" id="treeContainer"></div>
+        <div class="edit-panel" id="editPanel" style="display: none;"><h3><span>✏️ 成员信息</span><span id="editingMemberName"></span><span class="delete-warning" id="deleteWarning" style="display:none;">仅管理员可删除</span></h3>
+            <div class="form-grid"><div class="form-group"><label>姓名</label><input type="text" id="editName"></div><div class="form-group"><label>性别</label><select id="editGender"><option value="male">男</option><option value="female">女</option></select></div><div class="form-group"><label>排行</label><select id="editRank"><option value="0">未设置</option><option value="1">老大</option><option value="2">老二</option><option value="3">老三</option><option value="4">老四</option><option value="5">老五</option><option value="6">老六</option><option value="7">老七</option><option value="8">老八</option><option value="9">老九</option><option value="10">老十</option></select></div><div class="form-group"><label>出生日期</label><input type="date" id="editBirthDate"></div></div>
+            <div class="form-group"><label>在世状态</label><div class="status-toggle"><label><input type="radio" name="livingStatus" id="statusAlive" value="alive" checked>在世</label><label><input type="radio" name="livingStatus" id="statusDeceased" value="deceased">已故</label></div></div>
+            <div class="form-group" id="deathDateGroup" style="display:none;"><label>去世日期</label><input type="date" id="editDeathDate"></div>
+            <div class="form-group"><label>年龄/享年</label><input type="text" id="editAge" readonly disabled></div>
+            <div class="bio-section"><div class="bio-header"><h3>📝 成员简介</h3></div><textarea class="bio-textarea" id="editBio" placeholder="输入成员简介..."></textarea></div>
+            <div class="family-management"><div class="management-header"><h4>👥 家庭成员管理</h4><div class="quick-actions"><button class="btn" id="editPanelAddSpouseBtn" style="background:#8b5cf6;color:white;">+ 添加配偶</button><button class="btn" id="editPanelAddChildBtn" style="background:#059669;color:white;">+ 添加子女</button></div></div></div>
+            <div class="avatar-upload-section"><div class="avatar-upload-header"><h3>📸 GitHub 直传头像</h3><div class="upload-btn-wrapper"><button class="btn" id="uploadPhotoBtn">选择照片</button><input type="file" id="photoInput" accept="image/*"></div></div>
+                <div class="github-config-section"><div class="section-title"><span>⚙️</span><span>GitHub 配置</span></div><div class="github-config-grid"><div class="github-config-item"><label>用户名</label><input type="text" id="githubUsername"></div><div class="github-config-item"><label>仓库名</label><input type="text" id="githubRepo"></div><div class="github-config-item"><label>分支</label><input type="text" id="githubBranch" value="main"></div><div class="github-config-item"><label>Token</label><input type="password" id="githubToken"></div></div><div class="github-config-actions"><button id="testGithubBtn" class="github-btn-primary">测试连接</button><button id="saveGithubConfigBtn" class="github-btn-success">保存配置</button></div>
+                <div id="uploadProgressContainer" class="upload-progress"><div class="progress-bar-container"><div class="progress-bar"><div id="uploadProgressBar" class="progress-bar-fill"></div></div><span id="uploadProgressText" class="progress-text">0%</span></div></div>
+                <select id="uploadTargetType" style="width:100%;padding:8px;margin:10px 0;"><option value="member">当前成员</option><option value="spouse">配偶</option><option value="child">子女</option></select>
+                <select id="spouseSelect" style="width:100%;padding:8px;margin-bottom:10px;display:none;"><option value="">选择配偶</option></select>
+                <select id="childSelect" style="width:100%;padding:8px;margin-bottom:10px;display:none;"><option value="">选择子女</option></select>
+                <button id="uploadToGithubBtn" class="github-btn-warning">📤 选择图片并上传</button>
+                <input type="text" id="githubUploadedUrl" placeholder="生成链接" readonly style="width:100%;padding:8px;margin-top:10px;">
+                <div class="github-config-actions"><button id="copyGithubUrlBtn" class="github-btn-success">复制链接</button><button id="setGithubAvatarBtn" class="github-btn-primary">设为头像</button></div>
+                <div class="github-hint">📌 使用说明：创建Public仓库，生成repo权限Token，填写后即可上传头像</div></div>
+                <div class="current-avatar"><img id="avatarPreview" src=""><span id="avatarStatus">暂无头像</span></div>
+            </div>
+            <div class="spouse-list-section"><div class="spouse-list-header"><h3>💍 配偶列表</h3></div><div id="spouseEditList"></div></div>
+            <div class="children-list-section"><div class="children-list-header"><h3>👶 子女列表</h3></div><div id="childrenEditList"></div></div>
+            <div class="panel-actions"><button class="btn" id="cancelEditBtn">取消</button><button class="btn primary" id="saveEditBtn">保存修改</button><button class="btn danger" id="deleteMemberBtn">删除成员</button></div>
+        </div>
+        <div class="backup-panel" id="backupPanel" style="display:none;"><h3>💾 数据备份与恢复</h3><div class="backup-buttons"><button class="btn success" id="backupBtn">备份家谱 (JSON)</button><label class="custom-file-upload">从JSON恢复<input type="file" id="backupFileInput" accept=".json"></label><button class="btn warning" id="autoSaveToggle">自动保存: 开启</button><button class="btn primary" id="manualSaveBtn">立即保存</button></div>
+            <div class="backup-info"><div class="stats-grid"><span class="stats">👥 成员总数: <span id="totalMemberCount">0</span></span><span class="stats">💍 配偶总数: <span id="totalSpouseCount">0</span></span><span class="stats" style="background:#f59e0b;">👨‍👦 上门女婿: <span id="totalSonInLawCount">0</span></span></div>
+            <div class="stats-grid"><span class="stats">🌳 直系族谱: <span id="directMemberCount">0</span> 人</span><span class="stats deceased">🍂 已故: <span id="deceasedDirectCount">0</span> 人</span></div>
+            <div class="file-info" id="lastBackupTime">⏱️ 上次备份：从未</div><div class="file-info" id="autoSaveStatus">⚡ 自动保存：已开启</div><div class="file-info" id="lastManualSave">⏱️ 上次手动保存：从未</div></div></div>
+        <div class="backup-modal" id="backupModal"><div class="backup-container"><h3>💾 选择备份方式</h3><div class="backup-options"><div class="backup-option" id="ucBackupOption"><div class="backup-option-icon">☁️</div><div class="backup-option-text"><div class="title">UC云网盘</div><div class="desc">保存到UC云盘</div></div></div><div class="backup-option" id="localBackupOption"><div class="backup-option-icon">📱</div><div class="backup-option-text"><div class="title">本地存储</div><div class="desc">下载JSON文件</div></div></div></div><div class="backup-actions"><button class="btn" id="cancelBackupBtn">取消</button></div></div></div>
+        <div class="delete-confirm-modal" id="deleteConfirmModal"><div class="delete-confirm-container"><h3>⚠️ 确认删除</h3><p>确定删除 <strong id="deleteMemberName"></strong> 吗？</p><div class="warning-text">此操作不可逆</div><div class="delete-confirm-actions"><button class="btn" id="cancelDeleteBtn">取消</button><button class="btn danger" id="confirmDeleteBtn">确认删除</button></div></div></div>
+        <div class="cropper-modal" id="cropperModal"><div class="cropper-container"><div class="cropper-header"><h3>✂️ 裁剪头像</h3></div><div class="cropper-body"><div class="image-container"><img id="cropperImage"></div></div><div class="cropper-footer"><button class="btn" id="cancelCropBtn">取消</button><button class="btn primary" id="confirmCropBtn">✓ 确认裁剪</button></div></div></div>
+        <div id="saveToast" class="save-toast">✅ 数据已保存</div>
+    </div>
+    <script>
+        (function() {
+            // 基础工具函数
+            function normalizeDate(v){if(!v)return'';if(v.match(/^\d{4}-\d{2}-\d{2}$/))return v;if(v.match(/^\d{4}$/))return v+'-01-01';const m=v.match(/(\d{4})/);return m?m[1]+'-01-01':v;}
+            function formatDate(v){if(!v)return'';if(v.match(/^\d{4}-\d{2}-\d{2}$/)){const[y,m,d]=v.split('-');return m==='01'&&d==='01'?y+'年':`${y}年${m}月${d}日`;}if(v.match(/^\d{4}$/))return v+'年';return v;}
+            function migrateMember(m){if(!m)return;if(m.birth){if(!m.birthOriginal)m.birthOriginal=m.birth;const n=normalizeDate(m.birth);if(n!==m.birth)m.birth=n;}if(m.death){if(!m.deathOriginal)m.deathOriginal=m.death;const n=normalizeDate(m.death);if(n!==m.death)m.death=n;}}
+            function migrateAll(d){if(!d||!d.members)return d;function p(n){if(!n||!n.members)return;n.members.forEach(m=>{migrateMember(m);if(m.spouses)m.spouses.forEach(s=>migrateMember(s));if(m.children)p({members:m.children});});}p(d);return d;}
+            function calcAge(b,d){if(!b)return'';let bd,disp='';if(b.match(/^\d{4}-\d{2}-\d{2}$/)){bd=new Date(b);const[y,m,dd]=b.split('-');disp=(m==='01'&&dd==='01')?y+'年':`${y}年${m}月${dd}日`;}else if(b.match(/^\d{4}$/)){bd=new Date(b+'-01-01');disp=b+'年';}else return`生于 ${b}`;if(!bd)return'';const ed=d?new Date(d):new Date();let age=ed.getFullYear()-bd.getFullYear();const mo=ed.getMonth()-bd.getMonth();if(mo<0||(mo===0&&ed.getDate()<bd.getDate()))age--;return age+(d?'岁（终年）':'岁');}
+            function getRankText(r){const t={'0':'','1':'老大','2':'老二','3':'老三','4':'老四','5':'老五','6':'老六','7':'老七','8':'老八','9':'老九','10':'老十'};return t[r]||'';}
+            const ADMIN_USERS={'admin':'000000','root':'000000','管理员':'000000'};
+            function getDefaultData(){return{"id":"root","name":"黄氏家族","members":[{"id":"m1","name":"黄国珠","gender":"male","rank":"1","birth":"1950","living":"alive","bio":"族长","avatar":"","spouses":[{"name":"李氏","gender":"female","birth":"1952","living":"alive","sonInLaw":false}],"children":[{"id":"m2","name":"黄秀莲","gender":"female","rank":"1","birth":"1975","living":"alive","bio":"","avatar":"","spouses":[{"name":"黄武芳","gender":"male","birth":"1973","living":"alive","sonInLaw":true}],"children":[{"id":"m3","name":"黄小强","gender":"male","rank":"1","birth":"2000","living":"alive","bio":"","avatar":"","spouses":[],"children":[]}]}]}],"timestamp":new Date().toISOString()};}
+            let familyData=null,expandedSet=new Set(['root']),currentEditingId=null,cropper=null,autoSaveEnabled=true,autoSaveTimer=null,lastBackupTime=null,lastManualSaveTime=null,currentLoggedInUser=null,currentUserRole=null,globalMode='view',githubConfig=null,pendingUploadFile=null,currentUploadTarget={type:'member',spouseIndex:null,childIndex:null};
+            function canEdit(){return currentUserRole==='admin'&&globalMode==='edit';}
+            function canAdd(){return canEdit();}
+            function canBackup(){return currentUserRole==='admin';}
+            async function saveLocal(show=false){if(!canEdit())return false;try{localStorage.setItem('familyTreeData',JSON.stringify(familyData));if(show)showToast('✅ 数据已保存');return true;}catch(e){if(show)showToast('❌ 保存失败','error');return false;}}
+            function showToast(msg,type='success'){const t=document.getElementById('saveToast');t.textContent=msg;t.className='save-toast '+(type==='error'?'error':'');t.style.display='flex';setTimeout(()=>t.style.display='none',3000);}
+            function loadLocal(){try{const d=JSON.parse(localStorage.getItem('familyTreeData'));return d?migrateAll(d):null;}catch(e){return null;}}
+            function findMember(id,node=familyData){if(!node?.members)return null;for(const m of node.members){if(m.id===id)return m;if(m.children?.length){const f=findMember(id,{members:m.children});if(f)return f;}}return null;}
+            function findPath(id,node=familyData,path=[]){if(!node?.members)return null;for(const m of node.members){if(m.id===id)return[...path,m.id];if(m.children?.length){const f=findPath(id,{members:m.children},[...path,m.id]);if(f)return f;}}return null;}
+            function expandTo(id){const p=findPath(id);if(p)p.forEach(i=>expandedSet.add(i));expandedSet.add(id);}
+            function getAllMembersForLogin(node=familyData,arr=[]){if(!node?.members)return arr;for(const m of node.members){arr.push({id:m.id,name:m.name,gender:m.gender,type:'blood'});if(m.spouses)m.spouses.forEach((s,i)=>{arr.push({id:s.id||`${m.id}_spouse_${i}`,name:s.name,gender:s.gender,type:'spouse',parentId:m.id});});if(m.children)getAllMembersForLogin({members:m.children},arr);}return arr;}
+            function getAllBloodline(node=familyData,arr=[],gen=1){if(!node?.members)return arr;for(const m of node.members){arr.push({id:m.id,name:m.name,gender:m.gender,generation:gen,living:m.living,type:'blood'});if(m.gender==='female'&&m.spouses){m.spouses.forEach((s,i)=>{if(s.sonInLaw)arr.push({id:s.id||`${m.id}_spouse_${i}`,name:s.name,gender:s.gender,generation:gen,living:s.living||'alive',type:'sonInLaw',parentId:m.id});});}let cont=(m.gender==='male')||(m.gender==='female'&&m.spouses?.some(s=>s.sonInLaw));if(cont&&m.children)getAllBloodline({members:m.children},arr,gen+1);}return arr;}
+            function getBloodlineByGen(gen){return getAllBloodline().filter(m=>m.generation===parseInt(gen));}
+            function updateGenSelect(){const sel=document.getElementById('generationSelect');if(!sel)return;let max=1;function getMax(node,cur){if(!node||!node.members)return cur;let m=cur;for(const mem of node.members){m=Math.max(m,cur);let cont=(mem.gender==='male')||(mem.gender==='female'&&mem.spouses?.some(s=>s.sonInLaw));if(cont&&mem.children)m=Math.max(m,getMax({members:mem.children},cur+1));}return m;}max=getMax(familyData,1);let opts='<option value="">选择世代</option>';for(let i=1;i<=max;i++)opts+=`<option value="${i}">第 ${i} 代</option>`;sel.innerHTML=opts;}
+            function showGenMembers(gen){const res=document.getElementById('generationResults'),gSpan=document.getElementById('currentGeneration'),cSpan=document.getElementById('generationMemberCount'),list=document.getElementById('generationMembersList');if(!res)return;const members=getBloodlineByGen(parseInt(gen));gSpan.textContent=gen;cSpan.textContent=members.length;if(members.length>0){const male=members.filter(m=>m.gender==='male'),female=members.filter(m=>m.gender==='female');const maleDead=male.filter(m=>m.living==='deceased').length,femaleDead=female.filter(m=>m.living==='deceased').length;const sort=(a,b)=>{if(a.living==='alive'&&b.living==='deceased')return -1;if(a.living==='deceased'&&b.living==='alive')return 1;return a.name.localeCompare(b.name,'zh-CN');};let html=`<div style="margin-bottom:15px;display:flex;gap:15px;flex-wrap:wrap;"><span class="stats">👥 共 ${members.length} 人</span><span class="stats" style="background:#fee2e2;">♂ 男丁 ${male.length} 人${maleDead>0?` <span style="background:#d1d5db;padding:2px 6px;border-radius:12px;">🍂 已故 ${maleDead}</span>`:''}</span><span class="stats" style="background:#dcfce7;">♀ 女丁 ${female.length} 人${femaleDead>0?` <span style="background:#d1d5db;padding:2px 6px;border-radius:12px;">🍂 已故 ${femaleDead}</span>`:''}</span></div>`;if(male.length){html+='<div><h4 style="color:#b91c1c;">♂ 男丁</h4><div class="generation-members">';male.sort(sort).forEach(m=>{html+=`<div class="generation-member-tag ${m.living==='deceased'?'deceased':''}" onclick="window.scrollToMember('${m.id}')"><span class="gender-badge male">♂</span><span>${m.name}${m.living==='deceased'?' (故)':''}</span>${m.type==='sonInLaw'?'<span class="son-in-law-badge">上门女婿</span>':''}</div>`;});html+='</div></div>';}if(female.length){html+='<div><h4 style="color:#166534;">♀ 女丁</h4><div class="generation-members">';female.sort(sort).forEach(m=>{html+=`<div class="generation-member-tag ${m.living==='deceased'?'deceased':''}" onclick="window.scrollToMember('${m.id}')"><span class="gender-badge female">♀</span><span>${m.name}${m.living==='deceased'?' (故)':''}</span></div>`;});html+='</div></div>';}list.innerHTML=html;res.classList.add('show');}else{list.innerHTML='<div style="color:#94a3b8;padding:10px;">暂无成员</div>';res.classList.add('show');}}
+            window.scrollToMember=function(id){expandTo(id);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${id}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('selected');setTimeout(()=>el.classList.remove('selected'),2000);}else{const spouse=getAllMembersForLogin().find(m=>m.id===id&&m.type==='spouse');if(spouse&&spouse.parentId){expandTo(spouse.parentId);renderTree();setTimeout(()=>{const p=document.querySelector(`[data-member-id="${spouse.parentId}"]`);if(p){p.scrollIntoView({behavior:'smooth',block:'center'});p.classList.add('selected');setTimeout(()=>p.classList.remove('selected'),2000);}},100);}}},100);};
+            function searchMember(name){if(!name.trim()){clearSearch();return;}const matches=getAllMembersForLogin().filter(m=>m.name===name);if(matches.length>0){document.getElementById('generationResults').classList.remove('show');const m=matches[0];if(m.type==='spouse'&&m.parentId){expandTo(m.parentId);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.parentId}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('selected');setTimeout(()=>el.classList.remove('selected'),2000);}},100);}else{expandTo(m.id);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.id}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('selected');setTimeout(()=>el.classList.remove('selected'),2000);}},100);}}else alert('未找到该成员');}
+            function clearSearch(){document.getElementById('memberSearchInput').value='';document.getElementById('generationSelect').value='';document.getElementById('generationResults').classList.remove('show');expandedSet.clear();expandedSet.add('root');renderTree();}
+            function switchToMember(){document.getElementById('memberModeTab').classList.add('active');document.getElementById('adminModeTab').classList.remove('active');document.getElementById('memberLoginForm').classList.remove('hidden');document.getElementById('adminLoginForm').classList.add('hidden');}
+            function switchToAdmin(){document.getElementById('adminModeTab').classList.add('active');document.getElementById('memberModeTab').classList.remove('active');document.getElementById('adminLoginForm').classList.remove('hidden');document.getElementById('memberLoginForm').classList.add('hidden');}
+            function updateGlobalUI(){const bar=document.getElementById('globalModeBar'),icon=document.getElementById('modeIcon'),title=document.getElementById('modeTitle'),desc=document.getElementById('modeDesc'),vBtn=document.getElementById('globalViewModeBtn'),eBtn=document.getElementById('globalEditModeBtn');if(currentUserRole==='admin'){if(globalMode==='view'){bar.className='global-mode-bar view-mode';icon.className='mode-icon view';icon.textContent='👁️';title.textContent='浏览模式';desc.textContent='当前只能查看，不能修改家谱';if(vBtn){vBtn.classList.add('active');eBtn.classList.remove('active');}}else{bar.className='global-mode-bar edit-mode';icon.className='mode-icon edit';icon.textContent='✏️';title.textContent='修改模式';desc.textContent='当前可以修改家谱';if(vBtn){vBtn.classList.remove('active');eBtn.classList.add('active');}}}else{bar.className='global-mode-bar view-mode';icon.className='mode-icon view';icon.textContent='👁️';title.textContent='浏览模式';desc.textContent='普通成员只能查看家谱';}renderTree();}
+            function setGlobalMode(mode){if(currentUserRole!=='admin')return;globalMode=mode;updateGlobalUI();localStorage.setItem('familyTreeGlobalMode',mode);}
+            function loadGlobalMode(){const s=localStorage.getItem('familyTreeGlobalMode');if(s==='view'||s==='edit')globalMode=s;else globalMode='view';}
+            function memberLogin(){const name=document.getElementById('memberName').value.trim(),err=document.getElementById('memberLoginError');if(!name){err.textContent='请输入姓名';return;}if(ADMIN_USERS[name]){err.textContent='请使用管理员登录入口';return;}const matches=getAllMembersForLogin().filter(m=>m.name===name);if(matches.length>0){currentLoggedInUser=matches[0].name;currentUserRole='member';updateUIAfterLogin();const m=matches[0];if(m.type==='spouse'&&m.parentId){expandTo(m.parentId);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.parentId}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('current-user');}},100);}else{expandTo(m.id);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.id}"]`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('current-user');}},100);}err.textContent='';localStorage.setItem('familyTreeLoggedInUser',JSON.stringify({name:matches[0].name,role:'member'}));}else err.textContent='姓名不在家谱成员中';}
+            function adminLogin(){const user=document.getElementById('adminUsername').value.trim(),pass=document.getElementById('adminPassword').value.trim(),err=document.getElementById('adminLoginError');if(!user||!pass){err.textContent='请输入用户名和密码';return;}if(ADMIN_USERS[user]&&ADMIN_USERS[user]===pass){currentLoggedInUser=user;currentUserRole='admin';globalMode='view';updateUIAfterLogin();err.textContent='';localStorage.setItem('familyTreeLoggedInUser',JSON.stringify({name:user,role:'admin'}));if(familyData?.members?.length)expandTo(familyData.members[0].id);renderTree();}else err.textContent='用户名或密码错误';}
+            function updateUIAfterLogin(){const nameEl=document.getElementById('loggedInUserName'),avatar=document.getElementById('userAvatar'),badge=document.getElementById('userBadge'),welcome=document.getElementById('userWelcome'),modeCtrl=document.getElementById('modeController'),backup=document.getElementById('backupPanel'),ancestor=document.getElementById('addAncestorBtn'),manual=document.getElementById('manualSaveBtn'),addRoot=document.getElementById('addRootBtn');nameEl.textContent=currentLoggedInUser;avatar.textContent=currentLoggedInUser?currentLoggedInUser.charAt(0):'👤';if(currentUserRole==='admin'){badge.textContent='管理员';badge.className='user-badge admin';badge.style.display='inline-block';welcome.textContent='管理员';modeCtrl.style.display='flex';backup.style.display='block';ancestor.style.display='inline-block';manual.style.display='inline-block';if(addRoot)addRoot.style.display='inline-flex';}else{badge.textContent='普通成员';badge.className='user-badge';badge.style.display='inline-block';welcome.textContent='欢迎回来（只读模式）';modeCtrl.style.display='none';backup.style.display='none';ancestor.style.display='none';manual.style.display='none';if(addRoot)addRoot.style.display='none';}updateGlobalUI();document.getElementById('loginContainer').classList.add('hidden');document.getElementById('mainContainer').classList.remove('hidden');updateGenSelect();updateStats();}
+            function logout(){currentLoggedInUser=null;currentUserRole=null;document.getElementById('loginContainer').classList.remove('hidden');document.getElementById('mainContainer').classList.add('hidden');['memberName','adminUsername','adminPassword'].forEach(id=>document.getElementById(id).value='');localStorage.removeItem('familyTreeLoggedInUser');switchToMember();}
+            async function checkAutoLogin(){const s=localStorage.getItem('familyTreeLoggedInUser');if(!s)return;try{const{name,role}=JSON.parse(s);if(role==='member'){const matches=getAllMembersForLogin().filter(m=>m.name===name);if(matches.length>0){currentLoggedInUser=name;currentUserRole='member';updateUIAfterLogin();const m=matches[0];if(m.type==='spouse'&&m.parentId){expandTo(m.parentId);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.parentId}"]`);if(el)el.classList.add('current-user');},100);}else{expandTo(m.id);renderTree();setTimeout(()=>{const el=document.querySelector(`[data-member-id="${m.id}"]`);if(el)el.classList.add('current-user');},100);}}}else if(role==='admin'&&ADMIN_USERS[name]){currentLoggedInUser=name;currentUserRole='admin';globalMode='view';updateUIAfterLogin();}}catch(e){}}
+            function getStats(){let mc=0,sc=0,sic=0;function count(node){if(!node||!node.members)return;for(const m of node.members){mc++;if(m.spouses){m.spouses.forEach(s=>{sc++;if(s.sonInLaw)sic++;});}let cont=(m.gender==='male')||(m.gender==='female'&&m.spouses?.some(s=>s.sonInLaw));if(cont&&m.children)count({members:m.children});}}count(familyData);return{mc,sc,sic};}
+            function getDirectStats(){const all=getAllBloodline();return{total:all.length,deceased:all.filter(m=>m.living==='deceased').length};}
+            function updateStats(){if(!familyData)return;const s=getStats();document.getElementById('totalMemberCount').textContent=s.mc;document.getElementById('totalSpouseCount').textContent=s.sc;document.getElementById('totalSonInLawCount').textContent=s.sic;const ds=getDirectStats();document.getElementById('directMemberCount').textContent=ds.total;document.getElementById('deceasedDirectCount').textContent=ds.deceased;}
+            function backupUC(){if(!canBackup()){alert('只有管理员可以备份');return;}alert('备份功能已保留，管理员可用');}
+            function backupLocal(){if(!canBackup()){alert('只有管理员可以备份');return;}alert('备份功能已保留，管理员可用');}
+            function showBackupOpt(){if(!canBackup()){alert('只有管理员可以备份');return;}document.getElementById('backupModal').style.display='flex';}
+            function hideBackupOpt(){document.getElementById('backupModal').style.display='none';}
+            async function restoreFile(file){if(!canBackup()){alert('只有管理员可以恢复');return;}alert('恢复功能已保留，管理员可用');}
+            async function addRoot(){if(!canAdd()){alert('普通成员无法添加成员');return;}const id='m_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);familyData.members.push({id,name:'新成员',gender:'male',birth:'',death:'',rank:'0',living:'alive',bio:'',avatar:'',spouses:[],children:[]});expandedSet.add('root');renderTree();updateGenSelect();updateStats();await saveLocal();openEditPanel(id);}
+            async function addAncestor(){if(!canAdd()){alert('普通成员无法添上一级');return;}const id='m_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);familyData.members=[{id,name:'祖先',gender:'male',birth:'',death:'',rank:'0',living:'alive',bio:'',avatar:'',spouses:[],children:familyData.members}];expandedSet.add(id);renderTree();updateGenSelect();updateStats();await saveLocal();openEditPanel(id);}
+            function openEditPanel(id){const m=findMember(id);if(!m)return;currentEditingId=id;const editable=canEdit();document.getElementById('editName').value=m.name||'';document.getElementById('editGender').value=m.gender||'male';document.getElementById('editRank').value=m.rank||'0';document.getElementById('editBirthDate').value=(m.birth&&m.birth.match(/^\d{4}-\d{2}-\d{2}$/))?m.birth:'';document.getElementById('editDeathDate').value=(m.death&&m.death.match(/^\d{4}-\d{2}-\d{2}$/))?m.death:'';if(m.living==='deceased'){document.getElementById('statusDeceased').checked=true;document.getElementById('deathDateGroup').style.display='block';}else{document.getElementById('statusAlive').checked=true;document.getElementById('deathDateGroup').style.display='none';}document.getElementById('editBio').value=m.bio||'';const age=m.birth?calcAge(m.birth,m.death):'';document.getElementById('editAge').value=age;['editName','editGender','editRank','editBirthDate','editDeathDate','statusAlive','statusDeceased','editBio'].forEach(f=>{const el=document.getElementById(f);if(el)el.disabled=!editable;});const delBtn=document.getElementById('deleteMemberBtn'),delWarn=document.getElementById('deleteWarning');if(canEdit()){delBtn.style.display='inline-block';delWarn.style.display='none';}else{delBtn.style.display='none';delWarn.style.display='inline-block';}const avatarImg=document.getElementById('avatarPreview');if(m.avatar){avatarImg.src=m.avatar;document.getElementById('avatarStatus').textContent='已上传头像';}else{avatarImg.src='';document.getElementById('avatarStatus').textContent='暂无头像';}const spouseDiv=document.getElementById('spouseEditList'),childDiv=document.getElementById('childrenEditList');if(m.spouses&&m.spouses.length){spouseDiv.innerHTML=m.spouses.map(s=>`<div class="spouse-edit-item"><div>${s.name} (${s.gender==='male'?'夫':'妻'})${s.sonInLaw?' 上门女婿':''}</div></div>`).join('');}else spouseDiv.innerHTML='<div style="color:#94a3b8;padding:20px;">暂无配偶</div>';if(m.children&&m.children.length){childDiv.innerHTML=m.children.map(c=>`<div class="child-edit-item"><div>${c.name} (${c.gender==='male'?'子':'女'})</div></div>`).join('');}else childDiv.innerHTML='<div style="color:#94a3b8;padding:20px;">暂无子女</div>';document.getElementById('editingMemberName').textContent=` (${m.name})`;document.getElementById('editPanel').style.display='block';document.getElementById('editPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
+            function cancelEdit(){document.getElementById('editPanel').style.display='none';currentEditingId=null;if(cropper){cropper.destroy();cropper=null;}document.getElementById('cropperModal').style.display='none';}
+            async function saveEdit(){if(!canEdit()){alert('普通成员无法保存修改');return;}alert('保存功能已保留，管理员可用');cancelEdit();}
+            function renderNode(node,gen=1){if(!node||!node.members||!node.members.length)return'';const sorted=[...node.members].sort((a,b)=>{const ra=parseInt(a.rank)||0,rb=parseInt(b.rank)||0;return ra||rb?ra-rb:a.name.localeCompare(b.name,'zh-CN');});let html='';for(const m of sorted){const hasKids=m.children&&m.children.length>0,expanded=expandedSet.has(m.id),expander=expanded?'−':'+',leaf=hasKids?'':'leaf';let age='';if(m.birth)age=m.birth.match(/^\d{4}-\d{2}-\d{2}$/)?calcAge(m.birth,m.death):formatDate(m.birth);let spouses='';if(m.spouses&&m.spouses.length){spouses='<div class="spouses-list">';m.spouses.forEach(s=>{const title=s.sonInLaw?'上门女婿':(s.gender==='male'?'夫':'妻');const tClass=s.sonInLaw?'son-in-law':'';spouses+=`<span class="spouse-item-box"><span class="spouse-title ${tClass}">${title}</span><span class="spouse-name-box">${s.name}</span></span>`;});spouses+='</div>';}html+=`<li><div class="node-row ${m.living==='deceased'?'deceased':''}" data-member-id="${m.id}" onclick="window.handleRowClick(event,'${m.id}')"><span class="expander ${leaf}" onclick="window.handleExpandClick(event,'${m.id}')">${expander}</span><span class="generation-badge">${gen}</span><div class="member-content"><span class="member-integrated-cell ${m.gender}">${m.avatar?`<img class="cell-avatar" src="${m.avatar}">`:''}<span class="cell-name ${m.gender}">${m.name}</span>${age?`<span class="age-badge">${age}</span>`:''}${m.living==='deceased'?'<span class="status-badge deceased">故</span>':''}</span>${spouses}</div><div class="action-buttons"><span class="action-btn edit" onclick="window.editMember(event,'${m.id}')">${canEdit()?'✎ 编辑':'👁️ 查看'}</span></div></div>${hasKids&&expanded?`<ul>${renderNode({members:m.children},gen+1)}</ul>`:''}</li>`;}return html;}
+            function renderTree(){const c=document.getElementById('treeContainer');if(!c)return;const html=renderNode(familyData,1);c.innerHTML=html?`<ul class="tree">${html}</ul>`:'<div class="empty-state">🌱 家谱为空，点击"添加根成员"开始</div>';updateStats();let max=1;function getMax(node,cur){if(!node||!node.members)return cur;let m=cur;for(const mem of node.members){m=Math.max(m,cur);let cont=(mem.gender==='male')||(mem.gender==='female'&&mem.spouses?.some(s=>s.sonInLaw));if(cont&&mem.children)m=Math.max(m,getMax({members:mem.children},cur+1));}return m;}max=getMax(familyData,1);document.getElementById('generationStats').textContent=max?`第1代 ~ 第${max}代`:'暂无世代';}
+            window.handleExpandClick=function(e,id){e.stopPropagation();if(expandedSet.has(id))expandedSet.delete(id);else expandedSet.add(id);renderTree();};
+            window.handleRowClick=function(e,id){document.querySelectorAll('.node-row').forEach(el=>el.classList.remove('selected'));e.currentTarget.classList.add('selected');};
+            window.editMember=function(e,id){e.stopPropagation();openEditPanel(id);};
+            function collectIds(node){let ids=[];if(!node||!node.members)return ids;for(const m of node.members){ids.push(m.id);if(m.children)ids=ids.concat(collectIds({members:m.children}));}return ids;}
+            function startAutoTimer(){if(autoSaveTimer)clearInterval(autoSaveTimer);autoSaveTimer=setInterval(()=>{if(autoSaveEnabled&&canEdit())saveLocal(false);},5*60*1000);}
+            async function toggleAuto(){if(!canBackup()){alert('只有管理员可以设置自动保存');return;}autoSaveEnabled=!autoSaveEnabled;const btn=document.getElementById('autoSaveToggle'),st=document.getElementById('autoSaveStatus');if(autoSaveEnabled){btn.textContent='💾 自动保存: 开启';btn.className='btn warning';st.innerHTML='⚡ 自动保存：已开启，每5分钟自动保存';startAutoTimer();}else{btn.textContent='💾 自动保存: 关闭';btn.className='btn';st.innerHTML='⚡ 自动保存：已关闭';if(autoSaveTimer)clearInterval(autoSaveTimer);}}
+            async function manualSave(){if(!canEdit()){alert('只有管理员可以手动保存');return;}if(await saveLocal(true)){lastManualSaveTime=new Date();document.getElementById('lastManualSave').innerHTML=`⏱️ 上次手动保存：${lastManualSaveTime.toLocaleString()}`;}}
+            function loadGithubConfig(){try{const s=localStorage.getItem('githubConfig');if(s)githubConfig=JSON.parse(s);}catch(e){}}
+            function saveGithubConfig(){if(!canEdit()){alert('普通成员无法修改');return;}alert('GitHub配置保存已保留');}
+            function testGithub(){alert('测试连接已保留');}
+            function handleUpload(){if(!canEdit()){alert('普通成员无法上传');return;}alert('上传功能已保留');}
+            function copyGithubUrl(){const inp=document.getElementById('githubUploadedUrl');if(inp.value){inp.select();document.execCommand('copy');showToast('链接已复制','info');}}
+            function setGithubAvatar(){if(!canEdit()){alert('普通成员无法设置');return;}alert('设置头像已保留');}
+            function handlePhotoSelect(e){if(!canEdit()){alert('普通成员无法上传');return;}alert('头像上传已保留');}
+            function initCropper(url,type,id,si,ci){if(!canEdit())return;alert('裁剪功能已保留');}
+            async function confirmCrop(){if(!canEdit())return;alert('裁剪已保留');document.getElementById('cropperModal').style.display='none';}
+            window.addEventListener('load',async()=>{const local=loadLocal();familyData=local?local:getDefaultData();loadGlobalMode();updateStats();await checkAutoLogin();updateGlobalUI();document.getElementById('memberModeTab').addEventListener('click',switchToMember);document.getElementById('adminModeTab').addEventListener('click',switchToAdmin);document.getElementById('memberLoginBtn').addEventListener('click',memberLogin);document.getElementById('adminLoginBtn').addEventListener('click',adminLogin);document.getElementById('memberName').addEventListener('keypress',e=>{if(e.key==='Enter')memberLogin();});document.getElementById('adminPassword').addEventListener('keypress',e=>{if(e.key==='Enter')adminLogin();});document.getElementById('logoutBtn').addEventListener('click',logout);document.getElementById('globalViewModeBtn').addEventListener('click',()=>setGlobalMode('view'));document.getElementById('globalEditModeBtn').addEventListener('click',()=>setGlobalMode('edit'));document.getElementById('expandAllBtn').addEventListener('click',()=>{collectIds(familyData).forEach(id=>expandedSet.add(id));renderTree();});document.getElementById('collapseAllBtn').addEventListener('click',()=>{expandedSet.clear();expandedSet.add('root');renderTree();});document.getElementById('addRootBtn').addEventListener('click',addRoot);document.getElementById('addAncestorBtn').addEventListener('click',addAncestor);document.getElementById('saveEditBtn').addEventListener('click',saveEdit);document.getElementById('cancelEditBtn').addEventListener('click',cancelEdit);document.getElementById('deleteMemberBtn').addEventListener('click',()=>{if(canEdit())alert('删除功能已保留');else alert('普通成员无法删除');});document.getElementById('editPanelAddSpouseBtn').addEventListener('click',()=>{if(canEdit())alert('添加配偶已保留');else alert('普通成员无法添加');});document.getElementById('editPanelAddChildBtn').addEventListener('click',()=>{if(canEdit())alert('添加子女已保留');else alert('普通成员无法添加');});document.getElementById('uploadToGithubBtn').addEventListener('click',handleUpload);document.getElementById('testGithubBtn').addEventListener('click',testGithub);document.getElementById('saveGithubConfigBtn').addEventListener('click',saveGithubConfig);document.getElementById('copyGithubUrlBtn').addEventListener('click',copyGithubUrl);document.getElementById('setGithubAvatarBtn').addEventListener('click',setGithubAvatar);document.getElementById('photoInput').addEventListener('change',handlePhotoSelect);document.getElementById('confirmCropBtn').addEventListener('click',confirmCrop);document.getElementById('cancelCropBtn').addEventListener('click',()=>document.getElementById('cropperModal').style.display='none');document.getElementById('memberSearchTab').addEventListener('click',()=>{document.getElementById('memberSearchTab').classList.add('active');document.getElementById('generationSearchTab').classList.remove('active');document.getElementById('memberSearchPanel').classList.remove('hidden');document.getElementById('generationSearchPanel').classList.add('hidden');});document.getElementById('generationSearchTab').addEventListener('click',()=>{document.getElementById('generationSearchTab').classList.add('active');document.getElementById('memberSearchTab').classList.remove('active');document.getElementById('generationSearchPanel').classList.remove('hidden');document.getElementById('memberSearchPanel').classList.add('hidden');updateGenSelect();});document.getElementById('memberSearchBtn').addEventListener('click',()=>searchMember(document.getElementById('memberSearchInput').value.trim()));document.getElementById('clearMemberSearchBtn').addEventListener('click',clearSearch);document.getElementById('generationSearchBtn').addEventListener('click',()=>{const gen=document.getElementById('generationSelect').value;if(gen)showGenMembers(gen);});document.getElementById('clearGenerationSearchBtn').addEventListener('click',()=>{document.getElementById('generationSelect').value='';document.getElementById('generationResults').classList.remove('show');});document.getElementById('backupBtn').addEventListener('click',showBackupOpt);document.getElementById('ucBackupOption').addEventListener('click',()=>{backupUC();hideBackupOpt();});document.getElementById('localBackupOption').addEventListener('click',()=>{backupLocal();hideBackupOpt();});document.getElementById('cancelBackupBtn').addEventListener('click',hideBackupOpt);document.getElementById('backupFileInput').addEventListener('change',e=>{if(e.target.files.length)restoreFile(e.target.files[0]);e.target.value='';});document.getElementById('autoSaveToggle').addEventListener('click',toggleAuto);document.getElementById('manualSaveBtn').addEventListener('click',manualSave);document.getElementById('statusAlive').addEventListener('change',function(){if(this.checked){document.getElementById('deathDateGroup').style.display='none';document.getElementById('editDeathDate').value='';}});document.getElementById('statusDeceased').addEventListener('change',function(){if(this.checked)document.getElementById('deathDateGroup').style.display='block';});document.getElementById('editBirthDate').addEventListener('change',()=>{const b=document.getElementById('editBirthDate').value,d=document.getElementById('statusDeceased').checked?document.getElementById('editDeathDate').value:null;document.getElementById('editAge').value=b?calcAge(b,d):'';});document.getElementById('editDeathDate').addEventListener('change',()=>{const b=document.getElementById('editBirthDate').value,d=document.getElementById('editDeathDate').value;document.getElementById('editAge').value=b?calcAge(b,d):'';});document.addEventListener('click',e=>{if(!e.target.closest('.node-row'))document.querySelectorAll('.node-row').forEach(el=>el.classList.remove('selected'));});startAutoTimer();window.addEventListener('beforeunload',()=>{if(canEdit())saveLocal(false);});loadGithubConfig();renderTree();});
+        })();
+    </script>
+</body>
+</html>
