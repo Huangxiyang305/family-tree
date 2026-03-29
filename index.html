@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>黄氏家谱 · 同代统计增强版</title>
+    <title>黄氏家谱 · 权限版</title>
     <!-- 引入 Cropper.js 用于头像裁剪 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
@@ -852,8 +852,8 @@
             function canDelete() { return currentUserRole === 'admin'; }
             function canRemoveSpouse() { return currentUserRole === 'admin'; }
             function canRemoveChild() { return currentUserRole === 'admin'; }
-            function canAdd() { return globalMode === 'edit'; }
-            function canEdit() { return globalMode === 'edit'; }
+            function canAdd() { return globalMode === 'edit' && currentUserRole === 'admin'; }
+            function canEdit() { return globalMode === 'edit' && currentUserRole === 'admin'; }
             function canBackup() { return currentUserRole === 'admin'; }
             function canAddAncestor() { return currentUserRole === 'admin'; }
             function canManualSave() { return currentUserRole === 'admin'; }
@@ -982,7 +982,6 @@
                 select.innerHTML = options;
             }
 
-            // 【增强】显示同代成员，并添加男女及已故统计
             function showGenerationMembers(gen) {
                 const resultsDiv = document.getElementById('generationResults');
                 const genSpan = document.getElementById('currentGeneration');
@@ -994,19 +993,17 @@
                 genSpan.textContent = gen;
                 countSpan.textContent = members.length;
                 
-                // --- 新增统计：男丁/女孩 及 已故人数 ---
+                // 新增统计：男丁/女孩 及 已故人数
                 const totalMales = members.filter(m => m.gender === 'male').length;
                 const deceasedMales = members.filter(m => m.gender === 'male' && m.living === 'deceased').length;
                 const totalFemales = members.filter(m => m.gender === 'female').length;
                 const deceasedFemales = members.filter(m => m.gender === 'female' && m.living === 'deceased').length;
                 
-                // 创建或获取统计详情栏容器
                 let statsDetailDiv = document.getElementById('generationStatsDetail');
                 if (!statsDetailDiv) {
                     statsDetailDiv = document.createElement('div');
                     statsDetailDiv.id = 'generationStatsDetail';
                     statsDetailDiv.className = 'stats-grid';
-                    // 插入到 h3 和 generation-members 之间
                     const h3 = resultsDiv.querySelector('h3');
                     if (h3 && listDiv) {
                         resultsDiv.insertBefore(statsDetailDiv, listDiv);
@@ -1018,7 +1015,6 @@
                     <span class="stats">♀ 女孩: ${totalFemales}人</span>
                     <span class="stats deceased">🍂 女孩已故: ${deceasedFemales}人</span>
                 `;
-                // ------------------------------------
                 
                 if (members.length > 0) {
                     const maleMembers = members.filter(m => m.gender === 'male');
@@ -1416,7 +1412,7 @@
                 r.readAsText(file);
             }
 
-            // ========== 头像裁剪 + GitHub 上传整合（原有逻辑不变） ==========
+            // ========== 头像裁剪 + GitHub 上传整合 ==========
             function initCropperForUpload(url, file) {
                 if (!canEdit()) { alert('当前为浏览模式，无法上传头像'); return; }
                 const modal = document.getElementById('cropperModal');
@@ -1864,7 +1860,7 @@
                 finally { btn.disabled = false; btn.textContent = '💾 立即保存'; }
             }
 
-            // ========== 初始化（强制从服务器加载最新数据） ==========
+            // ========== 初始化 ==========
             window.addEventListener('load', async () => {
                 try {
                     console.log('🚀 加载最新家谱数据...');
@@ -1884,7 +1880,6 @@
                             const response = await fetch(path);
                             if (response.ok) {
                                 const remoteData = await response.json();
-                                // 兼容两种格式
                                 if (remoteData && remoteData.data && remoteData.data.members) {
                                     familyData = migrateAllDates(remoteData.data);
                                     loadedFromServer = true;
@@ -1905,7 +1900,6 @@
                         }
                     }
                     
-                    // 如果服务器加载失败，使用本地缓存作为备用
                     if (!loadedFromServer) {
                         console.log('⚠️ 无法从服务器加载数据，尝试使用本地缓存');
                         const localData = loadFromLocal();
@@ -1917,18 +1911,12 @@
                             showSaveToast('📦 使用默认示例数据', 'info');
                         }
                     } else {
-                        // 将服务器数据保存到本地缓存，供下次离线使用
                         saveToLocal(false);
                     }
                     
-                    // 加载全局模式
                     loadGlobalMode();
-                    
-                    // 更新界面
                     updateGenerationStats();
                     updateStatistics();
-                    
-                    // 检查自动登录
                     await checkAutoLogin();
                     
                     // 绑定事件
@@ -2013,7 +2001,6 @@
                 } catch (error) {
                     console.error('❌ 初始化失败', error);
                     alert('初始化失败：' + error.message);
-                    // 回退到默认数据
                     familyData = getEmbeddedFamilyData();
                     renderTree();
                 }
