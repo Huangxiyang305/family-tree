@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-04-05T02:52:45.612Z",
+  "timestamp": "2026-04-25T05:55:42.010Z",
   "data": {
     "id": "root",
     "name": "家族",
@@ -128,7 +128,7 @@
                             "children": [
                               {
                                 "id": "m_1771384750733_6nwa",
-                                "name": "黄承铭",
+                                "name": "黄承明",
                                 "gender": "male",
                                 "birth": "",
                                 "rank": "0",
@@ -136,8 +136,7 @@
                                 "avatar": "",
                                 "living": "alive",
                                 "spouses": [],
-                                "children": [],
-                                "death": ""
+                                "children": []
                               },
                               {
                                 "id": "m_1771386164907_oa8y",
@@ -1380,7 +1379,7 @@
                                 "sonInLaw": false
                               },
                               {
-                                "name": "（前）凌红燕",
+                                "name": "（现）凌红燕",
                                 "gender": "female",
                                 "birth": "",
                                 "bio": "",
@@ -2931,7 +2930,7 @@
                 "name": "黄道拔",
                 "gender": "male",
                 "birth": "",
-                "rank": "0",
+                "rank": "1",
                 "bio": "",
                 "avatar": "",
                 "living": "deceased",
@@ -4301,10 +4300,23 @@
                         "spouses": [],
                         "children": []
                       }
-                    ],
-                    "death": ""
+                    ]
                   }
-                ]
+                ],
+                "death": ""
+              },
+              {
+                "id": "m_1777096461064_8e14",
+                "name": "黄道新",
+                "gender": "male",
+                "birth": "",
+                "rank": "2",
+                "bio": "",
+                "avatar": "",
+                "living": "deceased",
+                "spouses": [],
+                "children": [],
+                "death": ""
               }
             ],
             "death": "",
@@ -4318,7 +4330,7 @@
         "living": "deceased"
       }
     ],
-    "timestamp": "2026-04-05T02:52:45.612Z",
+    "timestamp": "2026-04-25T05:55:42.009Z",
     "logs": [
       {
         "id": "1772974790186_2vxhpqk7",
@@ -4564,7 +4576,7 @@
     "snapshots": {}
   },
   "statistics": {
-    "memberCount": 189,
+    "memberCount": 190,
     "spouseCount": 116,
     "sonInLawCount": 1
   }

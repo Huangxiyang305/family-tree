@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>黄氏家谱 · 权限版</title>
-    <!-- 引入 Cropper.js 用于头像裁剪 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
-        /* ========== 完整CSS样式 ========== */
+        /* 完整CSS样式（与原版一致） */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #f2f5f9; font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .login-container { max-width: 400px; width: 100%; background: white; border-radius: 30px; box-shadow: 0 20px 40px -10px rgba(0, 20, 30, 0.2); padding: 40px 30px; }
@@ -296,7 +295,7 @@
         .save-toast.error { background: #dc2626; }
         .save-toast.info { background: #0284c7; }
         @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-        @media (max-width: 768px) { /* 响应式保持不变 */ }
+        @media (max-width: 768px) { /* 响应式 */ }
         .wechat-fix .global-mode-bar, .wechat-fix .user-bar, .wechat-fix .mode-indicator, .wechat-fix .mode-controller { display: flex !important; }
         .wechat-fix .login-container, .wechat-fix .main-container { display: block !important; }
         .wechat-fix .hidden { display: none !important; }
@@ -993,7 +992,6 @@
                 genSpan.textContent = gen;
                 countSpan.textContent = members.length;
                 
-                // 新增统计：男丁/女孩 及 已故人数
                 const totalMales = members.filter(m => m.gender === 'male').length;
                 const deceasedMales = members.filter(m => m.gender === 'male' && m.living === 'deceased').length;
                 const totalFemales = members.filter(m => m.gender === 'female').length;
@@ -1668,6 +1666,84 @@
             window.removeSpouseFromEdit = async function(mid, idx) { if (!canRemoveSpouse()) { alert('只有管理员可以移除配偶'); return; } const m = findMemberById(mid); if (!m || !m.spouses) return; m.spouses.splice(idx, 1); renderSpouseEditFields(m); await saveToLocal(); };
             window.removeChildFromEdit = async function(mid, idx) { if (!canRemoveChild()) { alert('只有管理员可以移除子女'); return; } const m = findMemberById(mid); if (!m || !m.children) return; m.children.splice(idx, 1); renderChildrenEditFields(m); await saveToLocal(); };
 
+            // ========== 修复后的 saveEdit 函数 ==========
+            async function saveEdit() {
+                if (!canEdit()) { alert('当前为浏览模式，无法保存修改'); return; }
+                if (!currentEditingId) return;
+                const m = findMemberById(currentEditingId);
+                if (!m) return;
+
+                // 更新成员自身字段
+                m.name = document.getElementById('editName').value.trim() || '无名';
+                m.gender = document.getElementById('editGender').value;
+                m.rank = document.getElementById('editRank').value;
+                m.birth = document.getElementById('editBirthDate').value || '';
+                m.death = document.getElementById('editDeathDate').value || '';
+                m.living = document.getElementById('statusAlive').checked ? 'alive' : 'deceased';
+                m.bio = document.getElementById('editBio').value || '';
+
+                // 处理配偶：基于 DOM 重建，但保留原有 avatar 等字段
+                const newSpouses = [];
+                const spouseItems = document.querySelectorAll('#spouseEditList .spouse-edit-item');
+                for (let i = 0; i < spouseItems.length; i++) {
+                    const item = spouseItems[i];
+                    const name = item.querySelector('.spouse-name')?.value.trim();
+                    if (!name) continue;
+                    let living = 'alive';
+                    item.querySelectorAll('input[type="radio"][name^="sl_"]').forEach(r => { if (r.checked) living = r.value; });
+                    const sonInLawCheck = item.querySelector('.spouse-son-in-law');
+                    const oldSpouse = m.spouses?.[i] || {};
+                    newSpouses.push({
+                        name: name,
+                        gender: item.querySelector('.spouse-gender')?.value || 'female',
+                        birth: item.querySelector('.spouse-birth')?.value || '',
+                        bio: item.querySelector('.spouse-bio-input')?.value || '',
+                        avatar: oldSpouse.avatar || '',
+                        living: living,
+                        sonInLaw: sonInLawCheck ? sonInLawCheck.checked : false,
+                        ...(oldSpouse.id ? { id: oldSpouse.id } : {})
+                    });
+                }
+                m.spouses = newSpouses;
+
+                // 处理子女：必须保留原有 spouses 和 children 子树（修复关键）
+                const newChildren = [];
+                const childItems = document.querySelectorAll('#childrenEditList .child-edit-item');
+                for (let i = 0; i < childItems.length; i++) {
+                    const item = childItems[i];
+                    const name = item.querySelector('.child-name')?.value.trim();
+                    if (!name) continue;
+                    let living = 'alive';
+                    item.querySelectorAll('input[type="radio"][name^="cl_"]').forEach(r => { if (r.checked) living = r.value; });
+                    const oldChild = m.children?.[i] || {};
+                    // 关键：保留原有配偶数组和后代数组
+                    const preservedSpouses = oldChild.spouses ? [...oldChild.spouses] : [];
+                    const preservedChildren = oldChild.children ? [...oldChild.children] : [];
+                    newChildren.push({
+                        id: oldChild.id || ('m_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6) + i),
+                        name: name,
+                        gender: item.querySelector('.child-gender')?.value || 'male',
+                        birth: item.querySelector('.child-birth')?.value || '',
+                        rank: item.querySelector('.child-rank')?.value || '0',
+                        bio: item.querySelector('.child-bio-input')?.value || '',
+                        avatar: oldChild.avatar || '',
+                        living: living,
+                        spouses: preservedSpouses,
+                        children: preservedChildren,
+                        ...(oldChild.death ? { death: oldChild.death } : {}),
+                        ...(oldChild.deathOriginal ? { deathOriginal: oldChild.deathOriginal } : {})
+                    });
+                }
+                m.children = newChildren;
+
+                renderTree();
+                updateGenerationStats();
+                updateStatistics();
+                await saveToLocal(true);
+                document.getElementById('editPanel').style.display = 'none';
+                currentEditingId = null;
+            }
+
             function openEditPanel(id) {
                 const m = findMemberById(id); if (!m) return;
                 currentEditingId = id;
@@ -1708,43 +1784,6 @@
                     if (m.children?.length) { const f = calculateGeneration(id, { members: m.children }, cur + 1); if (f) return f; }
                 }
                 return null;
-            }
-
-            async function saveEdit() {
-                if (!canEdit()) { alert('当前为浏览模式，无法保存修改'); return; }
-                if (!currentEditingId) return;
-                const m = findMemberById(currentEditingId);
-                if (!m) return;
-                m.name = document.getElementById('editName').value.trim() || '无名';
-                m.gender = document.getElementById('editGender').value;
-                m.rank = document.getElementById('editRank').value;
-                m.birth = document.getElementById('editBirthDate').value || '';
-                m.death = document.getElementById('editDeathDate').value || '';
-                m.living = document.getElementById('statusAlive').checked ? 'alive' : 'deceased';
-                m.bio = document.getElementById('editBio').value || '';
-                const newSpouses = [];
-                document.querySelectorAll('#spouseEditList .spouse-edit-item').forEach((item, idx) => {
-                    const name = item.querySelector('.spouse-name')?.value.trim();
-                    if (name) {
-                        let living = 'alive';
-                        item.querySelectorAll('input[type="radio"][name^="sl_"]').forEach(r => { if (r.checked) living = r.value; });
-                        const sonInLawCheck = item.querySelector('.spouse-son-in-law');
-                        newSpouses.push({ name, gender: item.querySelector('.spouse-gender')?.value || 'female', birth: item.querySelector('.spouse-birth')?.value || '', bio: item.querySelector('.spouse-bio-input')?.value || '', avatar: m.spouses?.[idx]?.avatar || '', living, sonInLaw: sonInLawCheck ? sonInLawCheck.checked : false });
-                    }
-                });
-                const newChildren = [];
-                document.querySelectorAll('#childrenEditList .child-edit-item').forEach((item, idx) => {
-                    const name = item.querySelector('.child-name')?.value.trim();
-                    if (name) {
-                        let living = 'alive';
-                        item.querySelectorAll('input[type="radio"][name^="cl_"]').forEach(r => { if (r.checked) living = r.value; });
-                        newChildren.push({ id: m.children?.[idx]?.id || ('m_'+Date.now()+'_'+Math.random().toString(36).substr(2,4)+idx), name, gender: item.querySelector('.child-gender')?.value || 'male', birth: item.querySelector('.child-birth')?.value || '', rank: item.querySelector('.child-rank')?.value || '0', bio: item.querySelector('.child-bio-input')?.value || '', avatar: m.children?.[idx]?.avatar || '', living, spouses: [], children: [] });
-                    }
-                });
-                m.spouses = newSpouses;
-                m.children = newChildren;
-                renderTree(); updateGenerationStats(); updateStatistics(); await saveToLocal();
-                document.getElementById('editPanel').style.display = 'none'; currentEditingId = null;
             }
 
             function cancelEdit() { document.getElementById('editPanel').style.display = 'none'; currentEditingId = null; document.getElementById('cropperModal').style.display = 'none'; if (cropper) { cropper.destroy(); cropper = null; } }
